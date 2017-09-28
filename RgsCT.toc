@@ -1,0 +1,6 @@
+## Interface: 70300
+## Title: RgsCT
+## Version: v0.1
+## Author: Rubgrsch
+
+RgsCT.lua
