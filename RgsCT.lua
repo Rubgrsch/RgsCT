@@ -1,6 +1,6 @@
-local format, GetSpellTexture = format, GetSpellTexture
+local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
 
-local myGUID
+local playerGUID
 
 -- Change CVars
 local f = CreateFrame("Frame")
@@ -10,7 +10,7 @@ f:SetScript("OnEvent", function()
 	SetCVar("floatingCombatTextCombatHealing", 0)
 	SetCVar("enableFloatingCombatText", 0)
 
-	myGUID = UnitGUID("player")
+	playerGUID = UnitGUID("player")
 end)
 
 local function NumUnitFormat(value)
@@ -106,6 +106,7 @@ local spellId, spellSchool
 local amount, overkill, school, critical
 local missType, overhealing, environmentalType
 local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, ...)
+	local myGUID = UnitGUID("vehicle") or playerGUID
 	fromMe = sourceGUID == myGUID
 	toMe = destGUID == myGUID
 	if EventList[event] == 1 then
