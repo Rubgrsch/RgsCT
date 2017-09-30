@@ -106,9 +106,9 @@ local spellId, spellSchool
 local amount, overkill, school, critical
 local missType, overhealing, environmentalType
 local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, ...)
-	local myGUID = UnitGUID("vehicle") or playerGUID
-	fromMe = sourceGUID == myGUID
-	toMe = destGUID == myGUID
+	local vehicleGUID = UnitGUID("vehicle")
+	fromMe = sourceGUID == vehicleGUID or sourceGUID == playerGUID
+	toMe = destGUID == vehicleGUID or destGUID == playerGUID
 	if EventList[event] == 1 then
 		amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
