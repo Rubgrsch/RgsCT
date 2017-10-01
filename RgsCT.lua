@@ -36,7 +36,7 @@ else
 	end
 end
 
-
+-- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
 	[1] = "ffff00",
 	[2] = "ffe57f",
@@ -101,7 +101,6 @@ end
 local OutFrame = CreateCTFrame("RgsCTOut","LEFT", UIParent, "CENTER",200,0)
 local InFrame = CreateCTFrame("RgsCTIn","RIGHT", UIParent, "CENTER",-200,0)
 
-
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing)
 	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID),dmgcolor[school],isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
 end
@@ -122,25 +121,25 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, 
 	local vehicleGUID = UnitGUID("vehicle")
 	fromMe = sourceGUID == vehicleGUID or sourceGUID == playerGUID
 	toMe = destGUID == vehicleGUID or destGUID == playerGUID
-	if EventList[event] == 1 then
+	if EventList[event] == 1 then -- melee
 		amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMe then DamageHealingString(false,6603,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
-	elseif EventList[event] == 2 then
+	elseif EventList[event] == 2 then -- spell damage
 		spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMe then DamageHealingString(false,spellId,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,spellId,amount,school,critical,false) end
 		end
-	elseif EventList[event] == 3 then
+	elseif EventList[event] == 3 then -- melee miss
 		missType = ...
 		if fromMe then MissString(false,6603,missType) end
 		if toMe then MissString(true,6603,missType) end
-	elseif EventList[event] == 4 then
+	elseif EventList[event] == 4 then -- spell miss
 		spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMe then MissString(true,spellId,missType) end
@@ -151,7 +150,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, 
 			if toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true)
 			elseif fromMe then DamageHealingString(false,spellId,amount,spellSchool,critical,true) end
 		end
-	elseif EventList[event] == 6 then
+	elseif EventList[event] == 6 then -- environmental damage
 		environmentalType, amount, overkill, school = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
