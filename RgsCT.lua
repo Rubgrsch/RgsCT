@@ -1,6 +1,6 @@
 local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
 
-local playerGUID
+local playerGUID, NumUnitFormat
 
 -- Change CVars
 local f = CreateFrame("Frame")
@@ -13,13 +13,26 @@ f:SetScript("OnEvent", function()
 	playerGUID = UnitGUID("player")
 end)
 
-local function NumUnitFormat(value)
-	if value > 1e8 then
-		return format("%.1fY",value/1e8)
-	elseif value > 1e4 then
-		return format("%.1fW",value/1e4)
-	else
-		return format("%d",value)
+local locale = GetLocale()
+if locale == "zhCN" or locale == "zhTW" then
+	NumUnitFormat = function(value)
+		if value > 1e8 then
+			return format("%.1fY",value/1e8)
+		elseif value > 1e4 then
+			return format("%.1fW",value/1e4)
+		else
+			return format("%d",value)
+		end
+	end
+else
+	NumUnitFormat = function(value)
+		if value > 1e6 then
+			return format("%.0fM",value/1e6)
+		elseif value > 1e3 then
+			return format("%.0fK",value/1e3)
+		else
+			return format("%d",value)
+		end
 	end
 end
 
