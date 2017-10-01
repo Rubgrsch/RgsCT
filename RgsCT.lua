@@ -102,11 +102,11 @@ local OutFrame = CreateCTFrame("RgsCTOut","LEFT", UIParent, "CENTER",200,0)
 local InFrame = CreateCTFrame("RgsCTIn","RIGHT", UIParent, "CENTER",-200,0)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing)
-	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID),dmgcolor[school],isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
+	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school],isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
 end
 
 local function MissString(isIn,spellID,missType)
-	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID),_G[missType]))
+	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
 end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
