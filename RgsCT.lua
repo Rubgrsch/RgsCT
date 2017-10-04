@@ -1,3 +1,18 @@
+
+local config = {
+	font = STANDARD_TEXT_FONT, -- font|字体
+	fontSize = 14, -- font size|字体大小
+	InFrame = { -- damage/healing to player|你受到的伤害/治疗
+		xOffset = -300,
+		yOffset = 0,
+	},
+	OutFrame = { -- damage/healing from player|你造成的伤害/治疗
+		xOffset = 300,
+		yOffset = 0,
+	},
+}
+
+local _G = _G
 local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
 
 local playerGUID, NumUnitFormat
@@ -104,13 +119,13 @@ local function CreateCTFrame(name, ...)
 	frame:SetSize(120,150)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
-	frame:SetFont(STANDARD_TEXT_FONT, 14, "OUTLINE")
+	frame:SetFont(config.font, config.fontSize, "OUTLINE")
 	frame:SetPoint(...)
 
 	return frame
 end
-local OutFrame = CreateCTFrame("RgsCTOut","LEFT", UIParent, "CENTER",200,0)
-local InFrame = CreateCTFrame("RgsCTIn","RIGHT", UIParent, "CENTER",-200,0)
+local OutFrame = CreateCTFrame("RgsCTOut","CENTER", UIParent, "CENTER",config.OutFrame.xOffset,config.OutFrame.yOffset)
+local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER",config.InFrame.xOffset,config.InFrame.yOffset)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing)
 	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school],isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
