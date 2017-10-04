@@ -72,6 +72,15 @@ local dmgcolor = {
 	[17] = "bfff7f",
 }
 
+local environmentalTypeText = {
+    Drowning = ACTION_ENVIRONMENTAL_DAMAGE_DROWNING,
+    Falling = ACTION_ENVIRONMENTAL_DAMAGE_FALLING,
+    Fatigue = ACTION_ENVIRONMENTAL_DAMAGE_FATIGUE,
+    Fire = ACTION_ENVIRONMENTAL_DAMAGE_FIRE,
+    Lava = ACTION_ENVIRONMENTAL_DAMAGE_LAVA,
+    Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
+}
+
 local EventList = {
 	SWING_DAMAGE = 1,
 	SPELL_DAMAGE = 2,
@@ -110,48 +119,44 @@ local function MissString(isIn,spellID,missType)
 end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
-	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool],_G["ACTION_ENVIRONMENTAL_DAMAGE_"..(environmentalType:upper())],NumUnitFormat(amount)))
+	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool],environmentalTypeText[environmentalType],NumUnitFormat(amount)))
 end
 
-local fromMe, toMe
-local spellId, spellSchool
-local amount, overkill, school, critical
-local missType, overhealing, environmentalType
 local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
-	fromMe = sourceGUID == vehicleGUID or sourceGUID == playerGUID
-	toMe = destGUID == vehicleGUID or destGUID == playerGUID
+	local fromMe = sourceGUID == vehicleGUID or sourceGUID == playerGUID
+	local toMe = destGUID == vehicleGUID or destGUID == playerGUID
 	if EventList[event] == 1 then -- melee
-		amount, overkill, school, _, _, _, critical = ...
+		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMe then DamageHealingString(false,6603,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 2 then -- spell damage
-		spellId, _, _, amount, overkill, school, _, _, _, critical = ...
+		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMe then DamageHealingString(false,spellId,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,spellId,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 3 then -- melee miss
-		missType = ...
+		local missType = ...
 		if fromMe then MissString(false,6603,missType) end
 		if toMe then MissString(true,6603,missType) end
 	elseif EventList[event] == 4 then -- spell miss
-		spellId, _, _, missType = ...
+		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMe then MissString(true,spellId,missType) end
 	elseif EventList[event] == 5 then -- Healing accept
-		spellId, _, spellSchool, amount, overhealing, _, critical = ...
+		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if overhealing > 0 then amount = amount - overhealing end
 		if amount > 0 then
 			if toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true)
 			elseif fromMe then DamageHealingString(false,spellId,amount,spellSchool,critical,true) end
 		end
 	elseif EventList[event] == 6 then -- environmental damage
-		environmentalType, amount, overkill, school = ...
+		local environmentalType, amount, overkill, school = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if toMe then EnvironmantalString(environmentalType,amount,school) end
