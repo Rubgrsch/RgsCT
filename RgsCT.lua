@@ -26,7 +26,9 @@ if locale == "zhCN" or locale == "zhTW" then
 	end
 else
 	NumUnitFormat = function(value)
-		if value > 1e6 then
+		if value > 1e9 then
+			return format("%.0fB",value/1e9)
+		elseif value > 1e6 then
 			return format("%.0fM",value/1e6)
 		elseif value > 1e3 then
 			return format("%.0fK",value/1e3)
