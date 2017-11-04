@@ -10,6 +10,10 @@ local config = {
 		xOffset = 300,
 		yOffset = 0,
 	},
+	showMyPet = {
+		from = true, -- damage/healing from your pet|你宠物造成的伤害/治疗
+		to = false, -- damage/healing to your pet|你宠物受到的伤害/治疗
+	},
 }
 
 local _G = _G
@@ -139,10 +143,13 @@ local function EnvironmantalString(environmentalType,amount,spellSchool)
 	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool],environmentalTypeText[environmentalType],NumUnitFormat(amount)))
 end
 
-local function parseCT(_,_,_, event, _, sourceGUID, _, _, _, destGUID, _, _, _, ...)
-	local vehicleGUID = UnitGUID("vehicle")
-	local fromMe = sourceGUID == vehicleGUID or sourceGUID == playerGUID
-	local toMe = destGUID == vehicleGUID or destGUID == playerGUID
+local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
+
+local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
+    local vehicleGUID = UnitGUID("vehicle") 
+	local isMyPet = sourceFlags == MY_PET_FLAGS
+	local fromMe = sourceGUID == playerGUID or sourceGUID == vehicleGUID or (config.showMyPet.from and isMyPet)
+	local toMe = destGUID == playerGUID or destGUID == vehicleGUID or (config.showMyPet.to and isMyPet)
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
