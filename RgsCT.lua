@@ -129,7 +129,7 @@ local OutFrame = CreateCTFrame("RgsCTOut","CENTER", UIParent, "CENTER",config.Ou
 local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER",config.InFrame.xOffset,config.InFrame.yOffset)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing)
-	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school],isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
+	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
 end
 
 local function MissString(isIn,spellID,missType)
@@ -137,7 +137,7 @@ local function MissString(isIn,spellID,missType)
 end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
-	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool],environmentalTypeText[environmentalType],NumUnitFormat(amount)))
+	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],NumUnitFormat(amount)))
 end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
