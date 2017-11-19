@@ -159,8 +159,8 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if fromMe then DamageHealingString(false,spellId,amount,school,critical,false) end
-			if toMe then DamageHealingString(true,spellId,amount,school,critical,false) end
+			if toMe then DamageHealingString(true,spellId,amount,school,critical,false)
+			elseif fromMe then DamageHealingString(false,spellId,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 3 then -- melee miss
 		local missType = ...
