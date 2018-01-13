@@ -11,10 +11,12 @@ local config = {
 		yOffset = 0,
 	},
 	showFromMyPet = true, -- damage/healing from your pet|你宠物造成的伤害/治疗
+	merge = true, --Merge multiple hits|合并多次伤害/治疗
 }
 
 local _G = _G
 local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
+local C_Timer_After = C_Timer.After
 
 local playerGUID, NumUnitFormat
 
@@ -37,7 +39,7 @@ if locale == "zhCN" or locale == "zhTW" then
 		elseif value > 1e4 then
 			return format("%.1fW",value/1e4)
 		else
-			return format("%d",value)
+			return format("%.0f",value)
 		end
 	end
 else
@@ -49,7 +51,7 @@ else
 		elseif value > 1e3 then
 			return format("%.0fK",value/1e3)
 		else
-			return format("%d",value)
+			return format("%.0f",value)
 		end
 	end
 end
@@ -128,8 +130,12 @@ end
 local OutFrame = CreateCTFrame("RgsCTOut","CENTER", UIParent, "CENTER",config.OutFrame.xOffset,config.OutFrame.yOffset)
 local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER",config.InFrame.xOffset,config.InFrame.yOffset)
 
-local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing)
-	(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
+local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
+	if Hits and Hits > 1 then -- isIn == false
+		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",NumUnitFormat(amount/Hits),Hits))
+	else
+		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
+	end
 end
 
 local function MissString(isIn,spellID,missType)
@@ -138,6 +144,22 @@ end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
 	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],NumUnitFormat(amount)))
+end
+
+local tAmount, tHits = {}, {}
+local function merge(spellID,amount,school,critical,isHealing)
+	if tAmount[spellID] then
+		tAmount[spellID] = tAmount[spellID] + amount
+		tHits[spellID] = tHits[spellID] + 1
+	else
+		tAmount[spellID] = amount
+		tHits[spellID] = 1
+		C_Timer_After(0.05, function()
+			DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
+			tAmount[spellID] = nil
+			tHits[spellID] = nil
+		end)
+	end
 end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
@@ -152,7 +174,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if fromMe then DamageHealingString(false,6603,amount,school,critical,false) end
+			if fromMe then merge(6603,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 2 then -- spell damage
@@ -160,7 +182,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if toMe then DamageHealingString(true,spellId,amount,school,critical,false)
-			elseif fromMe then DamageHealingString(false,spellId,amount,school,critical,false) end
+			elseif fromMe then merge(spellId,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 3 then -- melee miss
 		local missType = ...
