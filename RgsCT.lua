@@ -147,19 +147,24 @@ local function EnvironmantalString(environmentalType,amount,spellSchool)
 end
 
 local tAmount, tHits = {}, {}
-local function merge(spellID,amount,school,critical,isHealing)
-	if tAmount[spellID] then
-		tAmount[spellID] = tAmount[spellID] + amount
-		tHits[spellID] = tHits[spellID] + 1
-	else
-		tAmount[spellID] = amount
-		tHits[spellID] = 1
-		C_Timer_After(0.05, function()
-			DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
-			tAmount[spellID] = nil
-			tHits[spellID] = nil
-		end)
+local merge
+if config.merge then
+	merge = function(spellID,amount,school,critical,isHealing)
+		if tAmount[spellID] then
+			tAmount[spellID] = tAmount[spellID] + amount
+			tHits[spellID] = tHits[spellID] + 1
+		else
+			tAmount[spellID] = amount
+			tHits[spellID] = 1
+			C_Timer_After(0.05, function()
+				DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
+				tAmount[spellID] = nil
+				tHits[spellID] = nil
+			end)
+		end
 	end
+else
+	merge = function(...) DamageHealingString(false,...) end
 end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
