@@ -197,7 +197,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if overhealing > 0 then amount = amount - overhealing end
 		if amount > 0 then
 			if toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true)
-			elseif fromMe then DamageHealingString(false,spellId,amount,spellSchool,critical,true) end
+			elseif fromMe then merge(spellId,amount,spellSchool,critical,true) end
 		end
 	elseif EventList[event] == 6 then -- environmental damage
 		local environmentalType, amount, overkill, school = ...
