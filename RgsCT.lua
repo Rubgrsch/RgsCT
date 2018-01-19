@@ -172,14 +172,15 @@ local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_O
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
     local vehicleGUID = UnitGUID("vehicle")
-	local fromMyPet = sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS
-	local fromMe = sourceGUID == playerGUID or sourceGUID == vehicleGUID or (config.showFromMyPet and fromMyPet)
+	local fromMyPet = config.showFromMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
+	local fromMe = sourceGUID == playerGUID or sourceGUID == vehicleGUID
+	local fromMine = fromMe or fromMyPet
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if fromMe then merge(6603,amount,school,critical,false) end
+			if fromMine then merge(6603,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 2 then -- spell damage
@@ -187,7 +188,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if toMe then DamageHealingString(true,spellId,amount,school,critical,false)
-			elseif fromMe then merge(spellId,amount,school,critical,false) end
+			elseif fromMine then merge(spellId,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 3 then -- melee miss
 		local missType = ...
@@ -197,12 +198,12 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMe then MissString(true,spellId,missType) end
-	elseif EventList[event] == 5 then -- Healing accept
+	elseif EventList[event] == 5 then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if overhealing > 0 then amount = amount - overhealing end
 		if amount > 0 then
-			if toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true)
-			elseif fromMe then merge(spellId,amount,spellSchool,critical,true) end
+			if fromMine then merge(spellId,amount,spellSchool,critical,true)
+			elseif toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 		end
 	elseif EventList[event] == 6 then -- environmental damage
 		local environmentalType, amount, overkill, school = ...
