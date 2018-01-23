@@ -1,60 +1,8 @@
+local _, rct = ...
+local C, L, G = unpack(rct)
 
-local config = {
-	font = STANDARD_TEXT_FONT, -- font|字体
-	fontSize = 14, -- font size|字体大小
-	InFrame = { -- damage/healing to player|你受到的伤害/治疗
-		xOffset = -300,
-		yOffset = 0,
-	},
-	OutFrame = { -- damage/healing from player|你造成的伤害/治疗
-		xOffset = 300,
-		yOffset = 0,
-	},
-	showFromMyPet = true, -- damage/healing from your pet|你宠物造成的伤害/治疗
-	merge = true, --Merge multiple hits|合并多次伤害/治疗
-}
-
-local _G = _G
 local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
 local C_Timer_After = C_Timer.After
-
-local playerGUID, NumUnitFormat
-
--- Change CVars
-local f = CreateFrame("Frame")
-f:RegisterEvent("PLAYER_LOGIN")
-f:SetScript("OnEvent", function()
-	SetCVar("floatingCombatTextCombatDamage", 0)
-	SetCVar("floatingCombatTextCombatHealing", 0)
-	SetCVar("enableFloatingCombatText", 0)
-
-	playerGUID = UnitGUID("player")
-end)
-
-local locale = GetLocale()
-if locale == "zhCN" or locale == "zhTW" then
-	NumUnitFormat = function(value)
-		if value > 1e8 then
-			return format("%.1fY",value/1e8)
-		elseif value > 1e4 then
-			return format("%.1fW",value/1e4)
-		else
-			return format("%.0f",value)
-		end
-	end
-else
-	NumUnitFormat = function(value)
-		if value > 1e9 then
-			return format("%.0fB",value/1e9)
-		elseif value > 1e6 then
-			return format("%.0fM",value/1e6)
-		elseif value > 1e3 then
-			return format("%.0fK",value/1e3)
-		else
-			return format("%.0f",value)
-		end
-	end
-end
 
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
@@ -114,7 +62,7 @@ local EventList = {
 	ENVIRONMENTAL_DAMAGE = 6,
 }
 
-local function CreateCTFrame(name, ...)
+local function CreateCTFrame(name)
 	local frame = CreateFrame("ScrollingMessageFrame", name, UIParent)
 
 	frame:SetSpacing(3)
@@ -122,19 +70,21 @@ local function CreateCTFrame(name, ...)
 	frame:SetSize(120,150)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
-	frame:SetFont(config.font, config.fontSize, "OUTLINE")
-	frame:SetPoint(...)
 
 	return frame
 end
-local OutFrame = CreateCTFrame("RgsCTOut","CENTER", UIParent, "CENTER",config.OutFrame.xOffset,config.OutFrame.yOffset)
-local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER",config.InFrame.xOffset,config.InFrame.yOffset)
+local function SetFrame(frame,...)
+	frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
+	frame:SetPoint(...)
+end
+local OutFrame = CreateCTFrame("RgsCTOut")
+local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER")
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
-		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",NumUnitFormat(amount/Hits),Hits))
+		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",L.NumUnitFormat(amount/Hits),Hits))
 	else
-		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",NumUnitFormat(amount)))
+		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",L.NumUnitFormat(amount)))
 	end
 end
 
@@ -143,13 +93,13 @@ local function MissString(isIn,spellID,missType)
 end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
-	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],NumUnitFormat(amount)))
+	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],L.NumUnitFormat(amount)))
 end
 
 local tAmount, tHits = {}, {}
-local merge
-if config.merge then
-	merge = function(spellID,amount,school,critical,isHealing)
+local function merge(...)
+	if C.db.merge then
+		local spellID,amount,school,critical,isHealing = ...
 		if tAmount[spellID] then
 			tAmount[spellID] = tAmount[spellID] + amount
 			tHits[spellID] = tHits[spellID] + 1
@@ -162,9 +112,9 @@ if config.merge then
 				tHits[spellID] = nil
 			end)
 		end
+	else
+		DamageHealingString(false,...)
 	end
-else
-	merge = function(...) DamageHealingString(false,...) end
 end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
@@ -172,10 +122,10 @@ local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_O
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
     local vehicleGUID = UnitGUID("vehicle")
-	local fromMyPet = config.showFromMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
-	local fromMe = sourceGUID == playerGUID or sourceGUID == vehicleGUID
+	local fromMyPet = C.db.OutFrame.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
+	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
 	local fromMine = fromMe or fromMyPet
-	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
+	local toMe = destGUID == G.playerGUID or destGUID == vehicleGUID
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
@@ -217,3 +167,8 @@ end
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 eventFrame:SetScript("OnEvent", parseCT)
+
+rct:AddInitFunc(function()
+	SetFrame(InFrame,"CENTER", UIParent, "CENTER",C.db.InFrame.xOffset,C.db.InFrame.yOffset)
+	SetFrame(OutFrame,"CENTER", UIParent, "CENTER",C.db.OutFrame.xOffset,C.db.OutFrame.yOffset)
+end)
