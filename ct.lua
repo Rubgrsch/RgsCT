@@ -70,6 +70,12 @@ local function CreateCTFrame(name)
 	frame:SetSize(120,150)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", frame.StartMoving)
+	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
+	frame.texture:SetAllPoints(true)
+	G.mover[#G.mover+1] = frame
 
 	return frame
 end
@@ -78,7 +84,7 @@ local function SetFrame(frame,...)
 	frame:SetPoint(...)
 end
 local OutFrame = CreateCTFrame("RgsCTOut")
-local InFrame = CreateCTFrame("RgsCTIn","CENTER", UIParent, "CENTER")
+local InFrame = CreateCTFrame("RgsCTIn")
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
@@ -122,7 +128,7 @@ local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_O
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
     local vehicleGUID = UnitGUID("vehicle")
-	local fromMyPet = C.db.OutFrame.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
+	local fromMyPet = C.db.showFromMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
 	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
 	local fromMine = fromMe or fromMyPet
 	local toMe = destGUID == G.playerGUID or destGUID == vehicleGUID
@@ -169,6 +175,5 @@ eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 eventFrame:SetScript("OnEvent", parseCT)
 
 rct:AddInitFunc(function()
-	SetFrame(InFrame,"CENTER", UIParent, "CENTER",C.db.InFrame.xOffset,C.db.InFrame.yOffset)
-	SetFrame(OutFrame,"CENTER", UIParent, "CENTER",C.db.OutFrame.xOffset,C.db.OutFrame.yOffset)
+	for _,frame in ipairs(G.mover) do SetFrame(frame,unpack(C.db.mover[frame:GetName()])) end
 end)

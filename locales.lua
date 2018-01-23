@@ -27,3 +27,5 @@ else
 		end
 	end
 end
+
+setmetatable(L, {__index=function(_, key) return key end})
