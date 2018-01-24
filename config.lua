@@ -1,7 +1,9 @@
 local addonName, rct = ...
 local C, L, G = unpack(rct)
 
-local type, next, pairs = type, next, pairs
+local _G = _G
+local error, floor, type, next, select, ipairs, pairs = error, math.floor, type, next, select, ipairs, pairs
+local PlaySound = PlaySound
 
 local defaults = {
 	fontSize = 14,
@@ -22,7 +24,7 @@ rct:AddInitFunc(function()
 	-- Start of DB Conversion
 	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
-	
+
 	for _,v in pairs(options.check) do
 		v:SetChecked(v.getfunc())
 	end
@@ -106,14 +108,14 @@ local function newSlider(frame, label, name, desc, min, max, step, ...)
 	slider.tooltipText = name
 	slider.tooltipRequirement = desc
 	slider:SetMinMaxValues(min, max)
-	slider.minValue, slider.maxValue = slider:GetMinMaxValues() 
+	slider.minValue, slider.maxValue = slider:GetMinMaxValues()
 	slider.textLow:SetText(slider.minValue)
 	slider.textHigh:SetText(slider.maxValue)
 	slider.text:SetText(name)
 	slider:SetValueStep(step)
 	slider.getfunc = function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(self,value)
-		value = min + math.floor((value - min) / step + 0.5) * step
+		value = min + floor((value - min) / step + 0.5) * step
 		C.db[label]=value
 		self.Value:SetText(value)
 	end)
@@ -143,7 +145,7 @@ titleText:SetPoint("CENTER", configFrame, "TOP", 0, -10)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 newSlider(
-	configFrame, "fontSize", L["fontSize"], nil, 9, 30, 1, 
+	configFrame, "fontSize", L["fontSize"], nil, 9, 30, 1,
 	"TOPLEFT", configFrame, "TOPLEFT", 16, -40)
 newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 	function() return enableMover end,
@@ -168,7 +170,7 @@ newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 
 
 -- Add button in interfaceOptions
-local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer) 
+local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 InterfaceFrame.name = addonName
 InterfaceOptions_AddCategory(InterfaceFrame)
 

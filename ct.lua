@@ -1,7 +1,8 @@
 local _, rct = ...
 local C, L, G = unpack(rct)
 
-local format, GetSpellTexture, UnitGUID = format, GetSpellTexture, UnitGUID
+local _G = _G
+local format, ipairs, unpack, GetSpellTexture, UnitGUID = format, ipairs, unpack, GetSpellTexture, UnitGUID
 local C_Timer_After = C_Timer.After
 
 -- Stolen from AbuCombattext, converted to hex
