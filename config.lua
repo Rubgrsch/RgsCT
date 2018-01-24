@@ -127,7 +127,7 @@ local enableMover = false
 G.mover = {}
 
 local configFrame = CreateFrame("Frame","RgsCTConfig",UIParent,"BasicFrameTemplate")
-configFrame:SetSize(400,300)
+configFrame:SetSize(360,300)
 configFrame:SetPoint("Center",UIParent,"CENTER")
 configFrame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, edgeSize = 16,insets = { left = 4, right = 4, top = 4, bottom = 4 }})
 configFrame:SetMovable(true)
@@ -166,5 +166,18 @@ newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
 newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
 newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 
-SlashCmdList.rct = function() if configFrame:IsShown() then configFrame:Hide() else configFrame:Show() end end
-SLASH_rct1 = "/rct"
+
+-- Add button in interfaceOptions
+local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer) 
+InterfaceFrame.name = addonName
+InterfaceOptions_AddCategory(InterfaceFrame)
+
+local InterfaceButton = CreateFrame("Button", nil, InterfaceFrame, "UIPanelButtonTemplate")
+InterfaceButton:SetText(addonName)
+InterfaceButton:Point("TOPLEFT", InterfaceFrame, "TOPLEFT", 8, -8)
+InterfaceButton:Size(100, 25)
+InterfaceButton:SetScript("OnClick", function()
+	InterfaceOptionsFrame:Hide()
+	HideUIPanel(GameMenuFrame)
+	configFrame:Show()
+end)
