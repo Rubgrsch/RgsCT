@@ -161,6 +161,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if toMe then MissString(true,spellId,missType) end
 	elseif EventList[event] == 5 then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
+		if spellId == 143924 and not C.db.leech then return end
 		if overhealing > 0 then amount = amount - overhealing end
 		if amount > 0 then
 			if fromMine then merge(spellId,amount,spellSchool,critical,true)

@@ -11,6 +11,7 @@ local defaults = {
 	},
 	showMyPet = true, -- damage/healing from your pet|你宠物造成的伤害/治疗
 	merge = true, --Merge multiple hits|合并多次伤害/治疗
+	leech = false,
 }
 
 local options = {check={}, slider={}}
@@ -161,7 +162,8 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 			end
 		end
 	end)
-newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], optionsPerLine)
+newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
+newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
 
 SlashCmdList.rct = function() if configFrame:IsShown() then configFrame:Hide() else configFrame:Show() end end
 SLASH_rct1 = "/rct"
