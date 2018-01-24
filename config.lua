@@ -65,7 +65,7 @@ local function SetFramePoint(frame, ...)
 			frame:SetPoint("TOPLEFT", previous, "TOPLEFT", 170, 0)
 			idx = idx + 1
 		else
-			frame:SetPoint("TOPLEFT", first, "BOTTOMLEFT", 0, -16)
+			frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
 			idx, first = 1, frame
 		end
 	end
