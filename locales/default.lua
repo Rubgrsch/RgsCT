@@ -3,6 +3,9 @@ local C, L, G = unpack(rct)
 
 local format = string.format
 
+L["In"] = "In"
+L["Out"] = "Out"
+
 L["fontSize"] = "FontSize"
 L["mover"] = "Mover"
 L["moverTooltip"] = "Check to move frames. Uncheck to lock them."

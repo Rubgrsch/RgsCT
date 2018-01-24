@@ -5,6 +5,9 @@ local format = string.format
 
 if GetLocale() ~= "zhTW" then return end
 
+L["In"] = "承受"
+L["Out"] = "输出"
+
 L["fontSize"] = "字体大小"
 L["mover"] = "调整位置"
 L["moverTooltip"] = "勾选后可以左键拖动调整各个框体的位置。取消勾选后锁定位置。"
