@@ -62,8 +62,8 @@ local EventList = {
 	ENVIRONMENTAL_DAMAGE = 6,
 }
 
-local function CreateCTFrame(name)
-	local frame = CreateFrame("ScrollingMessageFrame", name, UIParent)
+local function CreateCTFrame(frameName,name)
+	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 
 	frame:SetSpacing(3)
 	frame:SetMaxLines(20)
@@ -75,6 +75,11 @@ local function CreateCTFrame(name)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
 	frame.texture:SetAllPoints(true)
+	frame.string = name
+	frame.text = frame:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+	frame.text:SetPoint("CENTER", frame, "CENTER", 0, 0)
+	frame.text:SetText("")
+
 	G.mover[#G.mover+1] = frame
 
 	return frame
@@ -83,8 +88,8 @@ local function SetFrame(frame,...)
 	frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
 	frame:SetPoint(...)
 end
-local OutFrame = CreateCTFrame("RgsCTOut")
-local InFrame = CreateCTFrame("RgsCTIn")
+local OutFrame = CreateCTFrame("RgsCTOut",L["In"])
+local InFrame = CreateCTFrame("RgsCTIn",L["Out"])
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false

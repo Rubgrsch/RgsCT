@@ -153,8 +153,10 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 			frame:EnableMouse(enableMover)
 			if enableMover then
 				frame.texture:SetColorTexture(1, 1, 0.0, 0.5)
+				frame.text:SetText(frame.string)
 			else
 				frame.texture:SetColorTexture(1, 1, 0.0, 0)
+				frame.text:SetText("")
 				C.db.mover[frame:GetName()]={"BOTTOMLEFT", frame:GetLeft(), frame:GetBottom()}
 			end
 		end
