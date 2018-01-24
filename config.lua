@@ -4,13 +4,13 @@ local C, L, G = unpack(rct)
 local type, next, pairs = type, next, pairs
 
 local defaults = {
-	fontSize = 14, -- font size|字体大小
+	fontSize = 14,
 	mover = {
 		RgsCTIn = {"CENTER",-300,0},
 		RgsCTOut = {"CENTER",300,0},
 	},
-	showMyPet = true, -- damage/healing from your pet|你宠物造成的伤害/治疗
-	merge = true, --Merge multiple hits|合并多次伤害/治疗
+	showMyPet = true,
+	merge = true,
 	leech = false,
 }
 
@@ -164,6 +164,7 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 	end)
 newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
 newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
+newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 
 SlashCmdList.rct = function() if configFrame:IsShown() then configFrame:Hide() else configFrame:Show() end end
 SLASH_rct1 = "/rct"

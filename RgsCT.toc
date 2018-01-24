@@ -5,6 +5,6 @@
 ## SavedVariables: rgsctDB
 
 init.lua
-locales.lua
+locales\locales.xml
 config.lua
 ct.lua

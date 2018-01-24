@@ -41,12 +41,12 @@ local dmgcolor = {
 }
 
 local environmentalTypeText = {
-    Drowning = ACTION_ENVIRONMENTAL_DAMAGE_DROWNING,
-    Falling = ACTION_ENVIRONMENTAL_DAMAGE_FALLING,
-    Fatigue = ACTION_ENVIRONMENTAL_DAMAGE_FATIGUE,
-    Fire = ACTION_ENVIRONMENTAL_DAMAGE_FIRE,
-    Lava = ACTION_ENVIRONMENTAL_DAMAGE_LAVA,
-    Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
+	Drowning = ACTION_ENVIRONMENTAL_DAMAGE_DROWNING,
+	Falling = ACTION_ENVIRONMENTAL_DAMAGE_FALLING,
+	Fatigue = ACTION_ENVIRONMENTAL_DAMAGE_FATIGUE,
+	Fire = ACTION_ENVIRONMENTAL_DAMAGE_FIRE,
+	Lava = ACTION_ENVIRONMENTAL_DAMAGE_LAVA,
+	Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
 }
 
 local EventList = {
@@ -132,7 +132,7 @@ local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
-    local vehicleGUID = UnitGUID("vehicle")
+	local vehicleGUID = UnitGUID("vehicle")
 	local fromMyPet = C.db.showFromMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
 	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
 	local fromMine = fromMe or fromMyPet
