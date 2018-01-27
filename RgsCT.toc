@@ -1,6 +1,6 @@
 ## Interface: 70300
 ## Title: RgsCT
-## Version: v0.4
+## Version: v0.5
 ## Author: Rubgrsch
 ## SavedVariables: rgsctDB
 
