@@ -14,8 +14,9 @@ L["leechTooltip"] = "Show healing from leech."
 L["merge"] = "Merge"
 L["mergeTooltip"] = "Try yo merge multi-hits damage/healing."
 L["showMyPet"] = "ShowMyPet"
-L["showMyPetTooltip"] = "Show damage/healing from player's pet"
-L.NumUnitFormat = function(value)
+L["showMyPetTooltip"] = "Show damage/healing from player's pet."
+L["periodicTooltip"] = "Show periodic damage/healing."
+L["NumUnitFormat"] = function(value)
 	if value > 1e9 then
 		return format("%.1fB",value/1e9)
 	elseif value > 1e6 then

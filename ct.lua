@@ -54,13 +54,13 @@ local EventList = {
 	SWING_DAMAGE = 1,
 	SPELL_DAMAGE = 2,
 	RANGE_DAMAGE = 2,
-	SPELL_PERIODIC_DAMAGE = 2,
 	SWING_MISSED = 3,
 	SPELL_MISSED = 4,
 	RANGE_MISSED = 4,
 	SPELL_HEAL = 5,
-	SPELL_PERIODIC_HEAL = 5,
-	ENVIRONMENTAL_DAMAGE = 6,
+	SPELL_PERIODIC_DAMAGE = 6,
+	SPELL_PERIODIC_HEAL = 7,
+	ENVIRONMENTAL_DAMAGE = 8,
 }
 
 local function CreateCTFrame(frameName,name)
@@ -94,9 +94,9 @@ local InFrame = CreateCTFrame("RgsCTIn",L["In"])
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
-		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",L.NumUnitFormat(amount/Hits),Hits))
+		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",L["NumUnitFormat"](amount/Hits),Hits))
 	else
-		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",L.NumUnitFormat(amount)))
+		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isIn and (isHealing and "+" or "-") or "",L["NumUnitFormat"](amount)))
 	end
 end
 
@@ -105,7 +105,7 @@ local function MissString(isIn,spellID,missType)
 end
 
 local function EnvironmantalString(environmentalType,amount,spellSchool)
-	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],L.NumUnitFormat(amount)))
+	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount)))
 end
 
 local tAmount, tHits = {}, {}
@@ -145,7 +145,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 			if fromMine then merge(6603,amount,school,critical,false) end
 			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
-	elseif EventList[event] == 2 then -- spell damage
+	elseif EventList[event] == 2 or (C.db.periodic and EventList[event] == 6) then -- spell damage
 		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
@@ -160,7 +160,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMe then MissString(true,spellId,missType) end
-	elseif EventList[event] == 5 then -- Healing
+	elseif EventList[event] == 5 or (C.db.periodic and EventList[event] == 7) then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if spellId == 143924 and not C.db.leech then return end
 		if overhealing > 0 then amount = amount - overhealing end
@@ -168,7 +168,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 			if fromMine then merge(spellId,amount,spellSchool,critical,true)
 			elseif toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 		end
-	elseif EventList[event] == 6 then -- environmental damage
+	elseif EventList[event] == 8 then -- environmental damage
 		local environmentalType, amount, overkill, school = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then

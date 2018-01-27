@@ -14,6 +14,7 @@ local defaults = {
 	showMyPet = true,
 	merge = true,
 	leech = false,
+	periodic = true,
 }
 
 local options = {check={}, slider={}}
@@ -167,7 +168,7 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
 newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
 newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
-
+newCheckBox(configFrame, "periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
 
 -- Add button in interfaceOptions
 local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
