@@ -9,14 +9,6 @@ Description
 This small addon shows your damage, healing, misses and environmental damage.  
 Options are available via GUI.  
 
-FAQ
----
-
-Q: I want to show messages about combat/interrupt/...  
-A: Install [AdvancedInterfaceOptions](https://www.wowace.com/projects/advancedinterfaceoptions), WoW has those options.  
-Q: But can you add those into your addon?  
-A: I'm lazzzzzzy >.>  
-
 Thanks
 ------
 
