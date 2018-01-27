@@ -134,7 +134,7 @@ local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_O
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
-	local fromMyPet = C.db.showFromMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
+	local fromMyPet = C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
 	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
 	local fromMine = fromMe or fromMyPet
 	local toMe = destGUID == G.playerGUID or destGUID == vehicleGUID
