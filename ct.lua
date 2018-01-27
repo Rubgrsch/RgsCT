@@ -89,8 +89,8 @@ local function SetFrame(frame,...)
 	frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
 	frame:SetPoint(...)
 end
-local OutFrame = CreateCTFrame("RgsCTOut",L["In"])
-local InFrame = CreateCTFrame("RgsCTIn",L["Out"])
+local OutFrame = CreateCTFrame("RgsCTOut",L["Out"])
+local InFrame = CreateCTFrame("RgsCTIn",L["In"])
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
