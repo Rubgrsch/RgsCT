@@ -180,7 +180,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		end
 	elseif C.db.info then
 		if EventList[event] == 9 then -- player died
-			if toMe then InfoFrame:AddMessage(YouDied) end
+			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
 		elseif EventList[event] == 10 then -- player interupts
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["YouHaveInteruptedSpell"], extraSpellName)) end
@@ -196,7 +196,12 @@ local combatF = CreateFrame("Frame")
 combatF:RegisterEvent("PLAYER_REGEN_ENABLED")
 combatF:RegisterEvent("PLAYER_REGEN_DISABLED")
 combatF:SetScript("OnEvent", function(_,event)
-	if C.db.info then InfoFrame:AddMessage(event == "PLAYER_REGEN_ENABLED" and LEAVING_COMBAT or ENTERING_COMBAT) end
+	if not C.db.info then return end
+	if event == "PLAYER_REGEN_ENABLED" then
+		InfoFrame:AddMessage(LEAVING_COMBAT,0,1,0)
+	else
+		InfoFrame:AddMessage(ENTERING_COMBAT,1,0,0)
+	end
 end)
 
 rct:AddInitFunc(function()

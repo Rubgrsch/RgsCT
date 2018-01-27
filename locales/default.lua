@@ -19,7 +19,7 @@ L["showMyPetTooltip"] = "Show damage/healing from player's pet."
 L["periodicTooltip"] = "Show periodic damage/healing."
 L["showInfo"] = "CombatInfo"
 L["showInfoTooltip"] = "Show some of your combat info, e.g. combat/interupted"
-L["YouHaveInteruptedSpell"] = "You have interupted %s"
+L["YouHaveInteruptedSpell"] = "You have interupted [%s]"
 L["NumUnitFormat"] = function(value)
 	if value > 1e9 then
 		return format("%.1fB",value/1e9)
