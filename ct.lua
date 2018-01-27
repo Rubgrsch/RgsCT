@@ -61,6 +61,8 @@ local EventList = {
 	SPELL_PERIODIC_DAMAGE = 6,
 	SPELL_PERIODIC_HEAL = 7,
 	ENVIRONMENTAL_DAMAGE = 8,
+	UNIT_DIED = 9,
+	SPELL_INTERRUPT = 10,
 }
 
 local function CreateCTFrame(frameName,name)
@@ -91,6 +93,7 @@ local function SetFrame(frame,...)
 end
 local OutFrame = CreateCTFrame("RgsCTOut",L["Out"])
 local InFrame = CreateCTFrame("RgsCTIn",L["In"])
+local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"])
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
@@ -131,6 +134,7 @@ end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
+local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
@@ -174,12 +178,26 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if amount > 0 then
 			if toMe then EnvironmantalString(environmentalType,amount,school) end
 		end
+	elseif C.db.info then
+		if EventList[event] == 9 then -- player died
+			if toMe then InfoFrame:AddMessage(YouDied) end
+		elseif EventList[event] == 10 then -- player interupts
+			local _, _, _, _, extraSpellName = ...
+			if fromMe then InfoFrame:AddMessage(format(L["YouHaveInteruptedSpell"], extraSpellName)) end
+		end
 	end
 end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 eventFrame:SetScript("OnEvent", parseCT)
+
+local combatF = CreateFrame("Frame")
+combatF:RegisterEvent("PLAYER_REGEN_ENABLED")
+combatF:RegisterEvent("PLAYER_REGEN_DISABLED")
+combatF:SetScript("OnEvent", function(_,event)
+	if C.db.info then InfoFrame:AddMessage(event == "PLAYER_REGEN_ENABLED" and LEAVING_COMBAT or ENTERING_COMBAT) end
+end)
 
 rct:AddInitFunc(function()
 	for _,frame in ipairs(G.mover) do SetFrame(frame,unpack(C.db.mover[frame:GetName()])) end

@@ -5,6 +5,7 @@ local format = string.format
 
 L["In"] = "In"
 L["Out"] = "Out"
+L["Info"] = "Info"
 
 L["fontSize"] = "FontSize"
 L["mover"] = "Mover"
@@ -16,6 +17,9 @@ L["mergeTooltip"] = "Try yo merge multi-hits damage/healing."
 L["showMyPet"] = "ShowMyPet"
 L["showMyPetTooltip"] = "Show damage/healing from player's pet."
 L["periodicTooltip"] = "Show periodic damage/healing."
+L["showInfo"] = "CombatInfo"
+L["showInfoTooltip"] = "Show some of your combat info, e.g. combat/interupted"
+L["YouHaveInteruptedSpell"] = "You have interupted %s"
 L["NumUnitFormat"] = function(value)
 	if value > 1e9 then
 		return format("%.1fB",value/1e9)

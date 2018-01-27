@@ -10,18 +10,28 @@ local defaults = {
 	mover = {
 		RgsCTIn = {"CENTER",-300,0},
 		RgsCTOut = {"CENTER",300,0},
+		RgsCTInfo = {"CENTER",0,0},
 	},
 	showMyPet = true,
 	merge = true,
 	leech = false,
 	periodic = true,
+	info = false,
 }
 
 local options = {check={}, slider={}}
 rct:AddInitFunc(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
-	for k,v in pairs(defaults) do if C.db[k] == nil then C.db[k] = v end end -- fallback to defaults
+	-- fallback to defaults
+	for k,v in pairs(defaults) do
+		if C.db[k] == nil then C.db[k] = v end
+		if type(v) == "table" then
+			for k1,v1 in pairs(v) do
+				if C.db[k][k1] == nil then C.db[k][k1] = v1 end
+			end
+		end
+	end
 	-- Start of DB Conversion
 	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
@@ -169,6 +179,7 @@ newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
 newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
 newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 newCheckBox(configFrame, "periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
+newCheckBox(configFrame, "info", L["showInfo"], L["showInfoTooltip"], 1)
 
 -- Add button in interfaceOptions
 local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
