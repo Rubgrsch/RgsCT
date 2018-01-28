@@ -137,7 +137,7 @@ local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
-local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, ...)
+local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMyPet = C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
 	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
@@ -184,7 +184,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
 		elseif EventList[event] == 10 then -- player interrupts
 			local _, _, _, _, extraSpellName = ...
-			if fromMe then InfoFrame:AddMessage(format(L["YouHaveInterruptedSpell"], extraSpellName)) end
+			if fromMe then InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName)) end
 		end
 	end
 end
