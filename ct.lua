@@ -65,14 +65,15 @@ local EventList = {
 	SPELL_INTERRUPT = 10,
 }
 
-local function CreateCTFrame(frameName,name)
+local function CreateCTFrame(frameName,name,...)
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 
 	frame:SetSpacing(3)
 	frame:SetMaxLines(20)
-	frame:SetSize(120,150)
+	frame:SetSize(...)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
+	frame:SetJustifyH("CENTER")
 	frame:RegisterForDrag("LeftButton")
 	frame:SetScript("OnDragStart", frame.StartMoving)
 	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
@@ -91,9 +92,9 @@ local function SetFrame(frame,...)
 	frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
 	frame:SetPoint(...)
 end
-local OutFrame = CreateCTFrame("RgsCTOut",L["Out"])
-local InFrame = CreateCTFrame("RgsCTIn",L["In"])
-local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"])
+local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
+local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
+local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
