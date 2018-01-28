@@ -21,7 +21,7 @@ L["showMyPetTooltip"] = "顯示玩家的寵物造成的傷害與治療。"
 L["periodicTooltip"] = "显示周期性伤害/治疗" --<<
 L["showInfo"] = "战斗信息" --<<
 L["showInfoTooltip"] = "显示部分与你有关的战斗信息，比如进入战斗/成功打断。" --<<
-L["YouHaveInteruptedSpell"] = "你已打断[%s]" --<<
+L["YouHaveInterruptedSpell"] = "你已打断[%s]" --<<
 L["NumUnitFormat"] = function(value)
 	if value > 1e8 then
 		return format("%.1f億",value/1e8)

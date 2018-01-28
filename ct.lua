@@ -181,9 +181,9 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	elseif C.db.info then
 		if EventList[event] == 9 then -- player died
 			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
-		elseif EventList[event] == 10 then -- player interupts
+		elseif EventList[event] == 10 then -- player interrupts
 			local _, _, _, _, extraSpellName = ...
-			if fromMe then InfoFrame:AddMessage(format(L["YouHaveInteruptedSpell"], extraSpellName)) end
+			if fromMe then InfoFrame:AddMessage(format(L["YouHaveInterruptedSpell"], extraSpellName)) end
 		end
 	end
 end
