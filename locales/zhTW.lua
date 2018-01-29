@@ -22,6 +22,8 @@ L["periodicTooltip"] = "显示周期性伤害/治疗" --<<
 L["showInfo"] = "战斗信息" --<<
 L["showInfoTooltip"] = "显示部分与你有关的战斗信息，比如进入战斗/成功打断。" --<<
 L["InterruptedSpell"] = "已打断%s的[%s]" --<<
+L["Dispeled"] = "已驱散%s的[%s]" --<<
+L["Stole"] = "已偷取%s的[%s]" --<<
 L["NumUnitFormat"] = function(value)
 	if value > 1e8 then
 		return format("%.1f億",value/1e8)
