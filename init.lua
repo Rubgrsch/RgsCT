@@ -14,7 +14,7 @@ f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function()
 	SetCVar("floatingCombatTextCombatDamage", 0)
 	SetCVar("floatingCombatTextCombatHealing", 0)
-	--SetCVar("enableFloatingCombatText", 0)
+	SetCVar("enableFloatingCombatText", 0)
 	for _,v in ipairs(rct.init) do v() end
 
 	G.playerGUID = UnitGUID("player")
