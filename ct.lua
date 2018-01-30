@@ -142,8 +142,8 @@ local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMyPet = C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
-	local fromMe = sourceGUID == G.playerGUID or sourceGUID == vehicleGUID
-	local fromMine = fromMe or fromMyPet
+	local fromMe = sourceGUID == G.playerGUID
+	local fromMine = fromMe or fromMyPet or sourceGUID == vehicleGUID
 	local toMe = destGUID == G.playerGUID or destGUID == vehicleGUID
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
