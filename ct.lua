@@ -141,45 +141,45 @@ local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
-	local fromMyPet = C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)
 	local fromMe = sourceGUID == G.playerGUID
-	local fromMine = fromMe or fromMyPet or sourceGUID == vehicleGUID
-	local toMe = destGUID == G.playerGUID or destGUID == vehicleGUID
+	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
+	local toMe = destGUID == G.playerGUID
+	local toMine = toMe or destGUID == vehicleGUID
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMine then merge(6603,amount,school,critical,false) end
-			if toMe then DamageHealingString(true,6603,amount,school,critical,false) end
+			if toMine then DamageHealingString(true,6603,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 2 or (C.db.periodic and EventList[event] == 6) then -- spell damage
 		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if toMe then DamageHealingString(true,spellId,amount,school,critical,false)
+			if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
 			elseif fromMine then merge(spellId,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 3 then -- melee miss
 		local missType = ...
 		if fromMe then MissString(false,6603,missType) end
-		if toMe then MissString(true,6603,missType) end
+		if toMine then MissString(true,6603,missType) end
 	elseif EventList[event] == 4 then -- spell miss
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
-		if toMe then MissString(true,spellId,missType) end
+		if toMine then MissString(true,spellId,missType) end
 	elseif EventList[event] == 5 or (C.db.periodic and EventList[event] == 7) then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if spellId == 143924 and not C.db.leech then return end
 		if overhealing > 0 then amount = amount - overhealing end
 		if amount > 0 then
 			if fromMine then merge(spellId,amount,spellSchool,critical,true)
-			elseif toMe then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
+			elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 		end
 	elseif EventList[event] == 8 then -- environmental damage
 		local environmentalType, amount, overkill, school = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if toMe then EnvironmantalString(environmentalType,amount,school) end
+			if toMine then EnvironmantalString(environmentalType,amount,school) end
 		end
 	elseif C.db.info then
 		if EventList[event] == 9 then -- player died
