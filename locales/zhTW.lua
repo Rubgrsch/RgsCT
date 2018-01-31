@@ -1,5 +1,5 @@
 local _, rct = ...
-local C, L, G = unpack(rct)
+local _, L = unpack(rct)
 
 local format = string.format
 

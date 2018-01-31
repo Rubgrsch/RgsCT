@@ -3,10 +3,10 @@ rct[1] = {} -- Config
 rct[2] = {} -- Locales
 rct[3] = {} -- Globals
 rct.init = {}
-local C, L, G = unpack(rct)
+local _, _, G = unpack(rct)
 
 function rct:AddInitFunc(func)
-	rct.init[#rct.init+1] = func
+	self.init[#self.init+1] = func
 end
 
 local f = CreateFrame("Frame")
