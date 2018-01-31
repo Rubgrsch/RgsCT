@@ -190,7 +190,7 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		elseif EventList[event] == 11 then -- player dispels
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName)) end
-		elseif EventList[event] == 11 then -- player stolen
+		elseif EventList[event] == 12 then -- player stolen
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName)) end
 		end
