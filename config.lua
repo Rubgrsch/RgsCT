@@ -45,25 +45,6 @@ rct:AddInitFunc(function()
 end)
 
 -- GUI Template --
-StaticPopupDialogs["RCTCONFIRM"] = {
-	text = "",
-	button1 = ACCEPT,
-	button2 = CANCEL,
-	OnAccept = nil,
-	OnCancel = nil,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	preferredIndex = STATICPOPUP_NUMDIALOGS,
-}
-local confirm = StaticPopupDialogs["RCTCONFIRM"]
-
-local function checkFunc(self, label, func)
-	local checked = self:GetChecked()
-	if func then func(checked) else C.db[label] = checked end
-	PlaySound(checked and 856 or 857)
-end
-
 local optionsPerLine = 2
 local idx, first, previous = 1
 
@@ -86,18 +67,13 @@ local function SetFramePoint(frame, ...)
 end
 
 local function newCheckBox(frame, label, name, desc, ...)
-	local get, set, confirmText = select(type(...) == "string" and 6 or 2, ...)
+	local get, set = select(type(...) == "string" and 6 or 2, ...)
 
 	local check = CreateFrame("CheckButton", "RCT"..label, frame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
-		if confirmText and self:GetChecked() then
-			confirm.text = confirmText
-			confirm.OnAccept = function() checkFunc(self, label, set) end
-			confirm.OnCancel = function() self:SetChecked(not self:GetChecked()) end
-			StaticPopup_Show("RCTCONFIRM")
-		else
-			checkFunc(self, label, set)
-		end
+		local checked = self:GetChecked()
+		if set then set(checked) else C.db[label] = checked end
+		PlaySound(checked and 856 or 857)
 	end)
 	check.getfunc = get or function() return C.db[label] end
 	check.label = _G[check:GetName().."Text"]
