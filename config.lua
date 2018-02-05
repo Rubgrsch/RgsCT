@@ -76,29 +76,23 @@ local function newCheckBox(frame, label, name, desc, ...)
 		PlaySound(checked and 856 or 857)
 	end)
 	check.getfunc = get or function() return C.db[label] end
-	check.label = _G[check:GetName().."Text"]
-	check.label:SetText(name)
+	_G[check:GetName().."Text"]:SetText(name)
 	check.tooltipText = name
 	check.tooltipRequirement = desc
 	SetFramePoint(check, ...)
 	options.check[label] = check
-	return check
 end
 
 local function newSlider(frame, label, name, desc, min, max, step, ...)
 	local slider = CreateFrame("Slider","RCT"..label,frame,"OptionsSliderTemplate")
 	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider.Value:SetPoint("BOTTOM",0,-10)
-	slider.textLow = _G[slider:GetName().."Low"]
-	slider.textHigh = _G[slider:GetName().."High"]
-	slider.text = _G[slider:GetName().."Text"]
 	slider.tooltipText = name
 	slider.tooltipRequirement = desc
 	slider:SetMinMaxValues(min, max)
-	slider.minValue, slider.maxValue = slider:GetMinMaxValues()
-	slider.textLow:SetText(slider.minValue)
-	slider.textHigh:SetText(slider.maxValue)
-	slider.text:SetText(name)
+	_G[slider:GetName().."Low"]:SetText(min)
+	_G[slider:GetName().."High"]:SetText(max)
+	_G[slider:GetName().."Text"]:SetText(name)
 	slider:SetValueStep(step)
 	slider.getfunc = function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(self,value)
@@ -108,7 +102,6 @@ local function newSlider(frame, label, name, desc, min, max, step, ...)
 	end)
 	SetFramePoint(slider, ...)
 	options.slider[label] = slider
-	return slider
 end
 -- End of GUI template --
 
