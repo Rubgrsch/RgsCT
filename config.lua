@@ -19,6 +19,7 @@ local defaults = {
 	info = false,
 }
 
+-- Table for DB initialize
 local options = {check={}, slider={}}
 rct:AddInitFunc(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
@@ -36,6 +37,7 @@ rct:AddInitFunc(function()
 	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
 
+	-- Set values in config
 	for _,v in pairs(options.check) do
 		v:SetChecked(v.getfunc())
 	end
@@ -48,17 +50,19 @@ end)
 local optionsPerLine = 2
 local idx, first, previous = 1
 
+-- ...: "point" [, relativeTo [, "relativePoint" [, xOffset [, yOffset]]]]
+-- or : width(num)
 local function SetFramePoint(frame, ...)
 	local pos = ...
-	if type(pos) == "string" then
+	if type(pos) == "string" then -- Set custom position
 		frame:SetPoint(...)
 		idx, first = 1, frame
 	else
 		if not first then error("No previous frame!") end
-		if idx <= optionsPerLine - pos then
+		if idx <= optionsPerLine - pos then -- same line
 			frame:SetPoint("TOPLEFT", previous, "TOPLEFT", 170, 0)
 			idx = idx + 1
-		else
+		else -- next line
 			frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
 			idx, first = 1, frame
 		end
@@ -66,6 +70,7 @@ local function SetFramePoint(frame, ...)
 	previous = frame
 end
 
+-- ...: args for SetFramePoint, [get[, set]]
 local function newCheckBox(frame, label, name, desc, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
 
