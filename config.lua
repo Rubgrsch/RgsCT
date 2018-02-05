@@ -73,7 +73,6 @@ end
 -- ...: args for SetFramePoint, [get[, set]]
 local function newCheckBox(frame, label, name, desc, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
-
 	local check = CreateFrame("CheckButton", "RCT"..label, frame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
@@ -89,6 +88,7 @@ local function newCheckBox(frame, label, name, desc, ...)
 end
 
 local function newSlider(frame, label, name, desc, min, max, step, ...)
+	local get, set = select(type(...) == "string" and 6 or 2, ...)
 	local slider = CreateFrame("Slider","RCT"..label,frame,"OptionsSliderTemplate")
 	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider.Value:SetPoint("BOTTOM",0,-10)
@@ -99,10 +99,10 @@ local function newSlider(frame, label, name, desc, min, max, step, ...)
 	_G[slider:GetName().."High"]:SetText(max)
 	_G[slider:GetName().."Text"]:SetText(name)
 	slider:SetValueStep(step)
-	slider.getfunc = function() return C.db[label] end
+	slider.getfunc = get or function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(self,value)
 		value = min + floor((value - min) / step + 0.5) * step
-		C.db[label]=value
+		if set then set(value) else C.db[label]=value end
 		self.Value:SetText(value)
 	end)
 	SetFramePoint(slider, ...)
@@ -131,7 +131,12 @@ titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 newSlider(
 	configFrame, "fontSize", L["fontSize"], nil, 9, 30, 1,
-	"TOPLEFT", configFrame, "TOPLEFT", 16, -40)
+	"TOPLEFT", configFrame, "TOPLEFT", 16, -40,
+	nil,
+	function(value)
+		C.db.fontSize = value
+		C.SetFrames()
+	end)
 newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 	function() return enableMover end,
 	function()
@@ -148,6 +153,7 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 				C.db.mover[frame:GetName()]={"BOTTOMLEFT", frame:GetLeft(), frame:GetBottom()}
 			end
 		end
+		C.SetFrames()
 	end)
 newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
 newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)

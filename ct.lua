@@ -90,10 +90,13 @@ local function CreateCTFrame(frameName,name,...)
 
 	return frame
 end
-local function SetFrame(frame,...)
-	frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
-	frame:SetPoint(...)
+function C.SetFrames()
+	for _,frame in ipairs(G.mover) do
+		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
+		frame:SetPoint(unpack(C.db.mover[frame:GetName()]))
+	end
 end
+
 local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
 local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
@@ -213,6 +216,4 @@ combatF:SetScript("OnEvent", function(_,event)
 	end
 end)
 
-rct:AddInitFunc(function()
-	for _,frame in ipairs(G.mover) do SetFrame(frame,unpack(C.db.mover[frame:GetName()])) end
-end)
+rct:AddInitFunc(C.SetFrames)
