@@ -1,12 +1,11 @@
 local _, rct = ...
 rct[1] = {} -- Config
 rct[2] = {} -- Locales
-rct[3] = {} -- Globals
-rct.init = {}
-local _, _, G = unpack(rct)
+local C = unpack(rct)
 
+local init = {}
 function rct:AddInitFunc(func)
-	self.init[#self.init+1] = func
+    init[#init+1] = func
 end
 
 local f = CreateFrame("Frame")
@@ -15,7 +14,9 @@ f:SetScript("OnEvent", function()
 	SetCVar("floatingCombatTextCombatDamage", 0)
 	SetCVar("floatingCombatTextCombatHealing", 0)
 	SetCVar("enableFloatingCombatText", 0)
-	for _,v in ipairs(rct.init) do v() end
 
-	G.playerGUID = UnitGUID("player")
+    for _,v in ipairs(init) do v() end
+    init = nil
+
+	C.playerGUID = UnitGUID("player")
 end)

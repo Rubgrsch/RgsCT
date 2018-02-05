@@ -1,5 +1,5 @@
 local addonName, rct = ...
-local C, L, G = unpack(rct)
+local C, L = unpack(rct)
 
 local _G = _G
 local error, floor, type, next, select, ipairs, pairs = error, math.floor, type, next, select, ipairs, pairs
@@ -111,7 +111,7 @@ end
 -- End of GUI template --
 
 local enableMover = false
-G.mover = {}
+C.mover = {}
 
 local configFrame = CreateFrame("Frame","RgsCTConfig",UIParent,"BasicFrameTemplate")
 configFrame:SetSize(360,300)
@@ -141,7 +141,7 @@ newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
 	function() return enableMover end,
 	function()
 		enableMover = not enableMover
-		for _,frame in ipairs(G.mover) do
+		for _,frame in ipairs(C.mover) do
 			frame:SetMovable(enableMover)
 			frame:EnableMouse(enableMover)
 			if enableMover then

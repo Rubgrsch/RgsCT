@@ -1,5 +1,5 @@
 local _, rct = ...
-local C, L, G = unpack(rct)
+local C, L = unpack(rct)
 
 local _G = _G
 local format, ipairs, unpack, GetSpellTexture, UnitGUID = format, ipairs, unpack, GetSpellTexture, UnitGUID
@@ -86,12 +86,12 @@ local function CreateCTFrame(frameName,name,...)
 	frame.text:SetPoint("CENTER", frame, "CENTER", 0, 0)
 	frame.text:SetText("")
 
-	G.mover[#G.mover+1] = frame
+	C.mover[#C.mover+1] = frame
 
 	return frame
 end
 function C.SetFrames()
-	for _,frame in ipairs(G.mover) do
+	for _,frame in ipairs(C.mover) do
 		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
 		frame:SetPoint(unpack(C.db.mover[frame:GetName()]))
 	end
@@ -144,9 +144,9 @@ local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
 local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
-	local fromMe = sourceGUID == G.playerGUID
+	local fromMe = sourceGUID == C.playerGUID
 	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
-	local toMe = destGUID == G.playerGUID
+	local toMe = destGUID == C.playerGUID
 	local toMine = toMe or destGUID == vehicleGUID
 	if EventList[event] == 1 then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
