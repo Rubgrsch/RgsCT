@@ -19,8 +19,6 @@ local defaults = {
 	info = false,
 }
 
--- Table for DB initialize
-local options = {check={}, slider={}}
 rct:AddInitFunc(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
@@ -36,7 +34,12 @@ rct:AddInitFunc(function()
 	-- Start of DB Conversion
 	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
+end)
 
+-- GUI Template --
+-- Table for DB initialize
+local options = {check={}, slider={}}
+rct:AddInitFunc(function()
 	-- Set values in config
 	for _,v in pairs(options.check) do
 		v:SetChecked(v.getfunc())
@@ -46,7 +49,6 @@ rct:AddInitFunc(function()
 	end
 end)
 
--- GUI Template --
 local optionsPerLine = 2
 local idx, first, previous = 1
 
