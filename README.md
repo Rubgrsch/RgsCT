@@ -1,12 +1,16 @@
 # RgsCT
-A tiny combat text addon for WoW.
+A tiny combat text addon for WoW.  
 
-[Curse](https://www.curseforge.com/wow/addons/rgsct)  
+https://www.curseforge.com/wow/addons/rgsct  
 
-Description
------------
+This addon provides necessary combat infomation with low usage.  
+It shows following infomation:
+- Damage
+- Healing
+- Misses
+- Environmental damage
+- Combat info
 
-This small addon shows your damage, healing, misses and environmental damage.  
 Options are available via GUI.  
 
 Thanks
