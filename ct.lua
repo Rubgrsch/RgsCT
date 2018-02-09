@@ -152,8 +152,8 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
-			if fromMine then merge(6603,amount,school,critical,false) end
-			if toMine then DamageHealingString(true,6603,amount,school,critical,false) end
+			if fromMine then merge(5586,amount,school,critical,false) end
+			if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
 		end
 	elseif EventList[event] == 2 or (C.db.periodic and EventList[event] == 6) then -- spell damage
 		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
@@ -164,8 +164,8 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		end
 	elseif EventList[event] == 3 then -- melee miss
 		local missType = ...
-		if fromMe then MissString(false,6603,missType) end
-		if toMine then MissString(true,6603,missType) end
+		if fromMe then MissString(false,5586,missType) end
+		if toMine then MissString(true,5586,missType) end
 	elseif EventList[event] == 4 then -- spell miss
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
