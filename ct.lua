@@ -101,9 +101,8 @@ local function EnvironmantalString(environmentalType,amount,spellSchool)
 end
 
 local tAmount, tHits = {}, {}
-local function merge(...)
-	if C.db.merge then
-		local spellID,amount,school,critical,isHealing = ...
+local function merge(isIn,spellID,amount,school,critical,isHealing)
+	if C.db.merge or not isIn then
 		if tAmount[spellID] then
 			tAmount[spellID] = tAmount[spellID] + amount
 			tHits[spellID] = tHits[spellID] + 1
@@ -111,13 +110,13 @@ local function merge(...)
 			tAmount[spellID] = amount
 			tHits[spellID] = 1
 			C_Timer_After(0.05, function()
-				DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
+				DamageHealingString(isIn,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
 				tAmount[spellID] = nil
 				tHits[spellID] = nil
 			end)
 		end
 	else
-		DamageHealingString(false,...)
+		DamageHealingString(isIn,spellID,amount,school,critical,isHealing)
 	end
 end
 
@@ -132,19 +131,13 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	local toMe = destGUID == C.playerGUID
 	local toMine = toMe or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
-		local amount, overkill, school, _, _, _, critical = ...
-		if overkill > 0 then amount = amount - overkill end
-		if amount > 0 then
-			if fromMine then merge(5586,amount,school,critical,false) end
-			if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
-		end
+		local amount, _, school, _, _, _, critical = ...
+		if fromMine then merge(false,5586,amount,school,critical,false) end
+		if toMine then merge(true,5586,amount,school,critical,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (C.db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
-		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
-		if overkill > 0 then amount = amount - overkill end
-		if amount > 0 then
-			if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
-			elseif fromMine then merge(spellId,amount,school,critical,false) end
-		end
+		local spellId, _, _, amount, _, school, _, _, _, critical = ...
+		if toMine then merge(true,spellId,amount,school,critical,false)
+		elseif fromMine then merge(false,spellId,amount,school,critical,false) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		local missType = ...
 		if fromMe then MissString(false,5586,missType) end
@@ -154,19 +147,13 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if fromMe then MissString(false,spellId,missType) end
 		if toMine then MissString(true,spellId,missType) end
 	elseif Event == "SPELL_HEAL" or (C.db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
-		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
+		local spellId, _, spellSchool, amount, _, _, critical = ...
 		if spellId == 143924 and not C.db.leech then return end
-		if overhealing > 0 then amount = amount - overhealing end
-		if amount > 0 then
-			if fromMine then merge(spellId,amount,spellSchool,critical,true)
-			elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
-		end
+		if fromMine then merge(false,spellId,amount,spellSchool,critical,true)
+		elseif toMine then merge(true,spellId,amount,spellSchool,critical,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
-		local environmentalType, amount, overkill, school = ...
-		if overkill > 0 then amount = amount - overkill end
-		if amount > 0 then
-			if toMine then EnvironmantalString(environmentalType,amount,school) end
-		end
+		local environmentalType, amount, _, school = ...
+		if toMine then EnvironmantalString(environmentalType,amount,school) end
 	elseif C.db.info then
 		if Event == "UNIT_DIED" then -- player died
 			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
