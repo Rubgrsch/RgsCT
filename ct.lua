@@ -50,23 +50,6 @@ local environmentalTypeText = {
 	Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
 }
 
-local EventList = {
-	SWING_DAMAGE = 1,
-	SPELL_DAMAGE = 2,
-	RANGE_DAMAGE = 2,
-	SWING_MISSED = 3,
-	SPELL_MISSED = 4,
-	RANGE_MISSED = 4,
-	SPELL_HEAL = 5,
-	SPELL_PERIODIC_DAMAGE = 6,
-	SPELL_PERIODIC_HEAL = 7,
-	ENVIRONMENTAL_DAMAGE = 8,
-	UNIT_DIED = 9,
-	SPELL_INTERRUPT = 10,
-	SPELL_DISPEL = 11,
-	SPELL_STOLEN = 12,
-}
-
 local function CreateCTFrame(frameName,name,...)
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 
@@ -142,35 +125,35 @@ local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
-local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
+local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == C.playerGUID
 	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == C.playerGUID
 	local toMine = toMe or destGUID == vehicleGUID
-	if EventList[event] == 1 then -- melee
+	if Event == "SWING_DAMAGE" then -- melee
 		local amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if fromMine then merge(5586,amount,school,critical,false) end
 			if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
 		end
-	elseif EventList[event] == 2 or (C.db.periodic and EventList[event] == 6) then -- spell damage
+	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (C.db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		local spellId, _, _, amount, overkill, school, _, _, _, critical = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
 			elseif fromMine then merge(spellId,amount,school,critical,false) end
 		end
-	elseif EventList[event] == 3 then -- melee miss
+	elseif Event == "SWING_MISSED" then -- melee miss
 		local missType = ...
 		if fromMe then MissString(false,5586,missType) end
 		if toMine then MissString(true,5586,missType) end
-	elseif EventList[event] == 4 then -- spell miss
+	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then -- spell miss
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMine then MissString(true,spellId,missType) end
-	elseif EventList[event] == 5 or (C.db.periodic and EventList[event] == 7) then -- Healing
+	elseif Event == "SPELL_HEAL" or (C.db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if spellId == 143924 and not C.db.leech then return end
 		if overhealing > 0 then amount = amount - overhealing end
@@ -178,22 +161,22 @@ local function parseCT(_,_,_, event, _, sourceGUID, _, sourceFlags, _, destGUID,
 			if fromMine then merge(spellId,amount,spellSchool,critical,true)
 			elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 		end
-	elseif EventList[event] == 8 then -- environmental damage
+	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, overkill, school = ...
 		if overkill > 0 then amount = amount - overkill end
 		if amount > 0 then
 			if toMine then EnvironmantalString(environmentalType,amount,school) end
 		end
 	elseif C.db.info then
-		if EventList[event] == 9 then -- player died
+		if Event == "UNIT_DIED" then -- player died
 			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
-		elseif EventList[event] == 10 then -- player interrupts
+		elseif Event == "SPELL_INTERRUPT" then -- player interrupts
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName)) end
-		elseif EventList[event] == 11 then -- player dispels
+		elseif Event == "SPELL_DISPEL" then -- player dispels
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName)) end
-		elseif EventList[event] == 12 then -- player stolen
+		elseif Event == "SPELL_STOLEN" then -- player stolen
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName)) end
 		end
