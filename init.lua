@@ -1,7 +1,9 @@
 local _, rct = ...
 rct[1] = {} -- Config
 rct[2] = {} -- Locales
-local C = unpack(rct)
+local C, L = unpack(rct)
+
+setmetatable(L, {__index=function(_, key) return key end})
 
 local init = {}
 function rct:AddInitFunc(func)

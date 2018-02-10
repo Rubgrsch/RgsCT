@@ -26,12 +26,10 @@ L["Dispeled"] = "已驱散%s的[%s]"
 L["Stole"] = "已偷取%s的[%s]"
 L["NumUnitFormat"] = function(value)
 	if value > 1e8 then
-		return format("%.1fY",value/1e8)
+		return format("%.1f亿",value/1e8)
 	elseif value > 1e4 then
-		return format("%.1fW",value/1e4)
+		return format("%.1f万",value/1e4)
 	else
 		return format("%.0f",value)
 	end
 end
-
-setmetatable(L, {__index=function(_, key) return key end})

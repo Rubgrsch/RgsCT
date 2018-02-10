@@ -33,5 +33,3 @@ L["NumUnitFormat"] = function(value)
 		return format("%.0f",value)
 	end
 end
-
-setmetatable(L, {__index=function(_, key) return key end})

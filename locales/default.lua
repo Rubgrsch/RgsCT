@@ -3,6 +3,8 @@ local _, L = unpack(rct)
 
 local format = string.format
 
+if next(L) then return end
+
 L["In"] = "In"
 L["Out"] = "Out"
 L["Info"] = "Info"
@@ -13,7 +15,7 @@ L["moverTooltip"] = "Check to move frames. Uncheck to lock them."
 L["leech"] = "ShowLeech"
 L["leechTooltip"] = "Show healing from leech."
 L["merge"] = "Merge"
-L["mergeTooltip"] = "Try yo merge multi-hits damage/healing."
+L["mergeTooltip"] = "Try to merge multi-hits damage/healing."
 L["showMyPet"] = "ShowMyPet"
 L["showMyPetTooltip"] = "Show damage/healing from player's pet."
 L["periodicTooltip"] = "Show periodic damage/healing."
@@ -33,5 +35,3 @@ L["NumUnitFormat"] = function(value)
 		return format("%.0f",value)
 	end
 end
-
-setmetatable(L, {__index=function(_, key) return key end})
