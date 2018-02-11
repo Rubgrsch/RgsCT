@@ -75,7 +75,7 @@ end
 -- ...: args for SetFramePoint, [get[, set]]
 local function newCheckBox(frame, label, name, desc, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
-	local check = CreateFrame("CheckButton", "RCT"..label, frame, "InterfaceOptionsCheckButtonTemplate")
+	local check = CreateFrame("CheckButton", "RgsCTConfig"..label, frame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
 		if set then set(checked) else C.db[label] = checked end
@@ -91,7 +91,7 @@ end
 
 local function newSlider(frame, label, name, desc, min, max, step, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
-	local slider = CreateFrame("Slider","RCT"..label,frame,"OptionsSliderTemplate")
+	local slider = CreateFrame("Slider","RgsCTConfig"..label,frame,"OptionsSliderTemplate")
 	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider.Value:SetPoint("BOTTOM",0,-10)
 	slider.tooltipText = name
