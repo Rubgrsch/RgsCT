@@ -172,7 +172,7 @@ end
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-eventFrame:SetScript("OnEvent", parseCT)
+eventFrame:SetScript("OnEvent", C.isBfA and function() parseCT(nil,nil,CombatLogGetCurrentEventInfo()) end or parseCT)
 
 local combatF = CreateFrame("Frame")
 combatF:RegisterEvent("PLAYER_REGEN_ENABLED")
