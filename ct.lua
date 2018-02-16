@@ -4,6 +4,7 @@ local C, L = unpack(rct)
 local _G = _G
 local format, ipairs, unpack, GetSpellTexture, UnitGUID = format, ipairs, unpack, GetSpellTexture, UnitGUID
 local C_Timer_After = C_Timer.After
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
