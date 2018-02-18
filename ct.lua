@@ -115,8 +115,8 @@ local function EnvironmantalString(environmentalType,amount,spellSchool)
 end
 
 local tAmount, tHits = {}, {}
-local function merge(isIn,spellID,amount,school,critical,isHealing)
-	if C.db.merge or not isIn then
+local function merge(spellID,amount,school,critical,isHealing)
+	if C.db.merge then
 		if tAmount[spellID] then
 			tAmount[spellID] = tAmount[spellID] + amount
 			tHits[spellID] = tHits[spellID] + 1
@@ -124,13 +124,13 @@ local function merge(isIn,spellID,amount,school,critical,isHealing)
 			tAmount[spellID] = amount
 			tHits[spellID] = 1
 			C_Timer_After(0.05, function()
-				DamageHealingString(isIn,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
+				DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
 				tAmount[spellID] = nil
 				tHits[spellID] = nil
 			end)
 		end
 	else
-		DamageHealingString(isIn,spellID,amount,school,critical,isHealing)
+		DamageHealingString(false,spellID,amount,school,critical,isHealing)
 	end
 end
 
@@ -146,12 +146,12 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	local toMine = toMe or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		local amount, _, school, _, _, _, critical = ...
-		if fromMine then merge(false,5586,amount,school,critical,false) end
-		if toMine then merge(true,5586,amount,school,critical,false) end
+		if fromMine then merge(5586,amount,school,critical,false) end
+		if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (C.db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		local spellId, _, _, amount, _, school, _, _, _, critical = ...
-		if toMine then merge(true,spellId,amount,school,critical,false)
-		elseif fromMine then merge(false,spellId,amount,school,critical,false) end
+		if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
+		elseif fromMine then merge(spellId,amount,school,critical,false) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		local missType = ...
 		if fromMe then MissString(false,5586,missType) end
@@ -163,8 +163,8 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	elseif Event == "SPELL_HEAL" or (C.db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		local spellId, _, spellSchool, amount, _, _, critical = ...
 		if spellId == 143924 and not C.db.leech then return end
-		if fromMine then merge(false,spellId,amount,spellSchool,critical,true)
-		elseif toMine then merge(true,spellId,amount,spellSchool,critical,true) end
+		if fromMine then merge(spellId,amount,spellSchool,critical,true)
+		elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, _, school = ...
 		if toMine then EnvironmantalString(environmentalType,amount,school) end

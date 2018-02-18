@@ -8,7 +8,7 @@ setmetatable(L, {__index=function(_, key) return key end})
 
 local init = {}
 function rct:AddInitFunc(func)
-    init[#init+1] = func
+	init[#init+1] = func
 end
 
 local f = CreateFrame("Frame")
@@ -18,8 +18,8 @@ f:SetScript("OnEvent", function()
 	SetCVar("floatingCombatTextCombatHealing", 0)
 	SetCVar("enableFloatingCombatText", 0)
 
-    for _,v in ipairs(init) do v() end
-    init = nil
+	for _,v in ipairs(init) do v() end
+	init = nil
 
 	C.playerGUID = UnitGUID("player")
 end)
