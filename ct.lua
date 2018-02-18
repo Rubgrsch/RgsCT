@@ -66,9 +66,22 @@ local function CreateCTFrame(frameName,name,...)
 	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
 	frame.texture:SetAllPoints(true)
 	frame.string = name
-	frame.text = frame:CreateFontString(nil,"ARTWORK","GameFontHighlight")
+	frame.text = frame:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
 	frame.text:SetPoint("CENTER", frame, "CENTER", 0, 0)
 	frame.text:SetText("")
+	frame:SetScript("OnMouseDown",function(_,button)
+		if C.enableMover and button == "RightButton" then
+			for _,f in ipairs(C.mover) do
+				f.texture:SetColorTexture(1, 1, 0, 0)
+				f.text:SetText("")
+				f:SetMovable(false)
+				f:EnableMouse(false)
+				C.db.mover[f:GetName()]={"BOTTOMLEFT", f:GetLeft(), f:GetBottom()}
+			end
+			C.enableMover = false
+			C.SetFrames()
+		end
+	end)
 
 	C.mover[#C.mover+1] = frame
 

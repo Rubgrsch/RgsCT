@@ -49,8 +49,11 @@ rct:AddInitFunc(function()
 	end
 end)
 
-local optionsPerLine = 2
+local optionsPerLine = 3
 local idx, first, previous = 1
+local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
+configFrame.name = addonName
+InterfaceOptions_AddCategory(configFrame)
 
 -- ...: "point" [, relativeTo [, "relativePoint" [, xOffset [, yOffset]]]]
 -- or : width(num)
@@ -61,8 +64,8 @@ local function SetFramePoint(frame, ...)
 		idx, first = 1, frame
 	else
 		if not first then error("No previous frame!") end
-		if idx <= optionsPerLine - pos then -- same line
-			frame:SetPoint("TOPLEFT", previous, "TOPLEFT", 170, 0)
+		if pos > 0 and idx <= optionsPerLine - pos then -- same line
+			frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
 			idx = idx + 1
 		else -- next line
 			frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
@@ -73,9 +76,9 @@ local function SetFramePoint(frame, ...)
 end
 
 -- ...: args for SetFramePoint, [get[, set]]
-local function newCheckBox(frame, label, name, desc, ...)
+local function newCheckBox(label, name, desc, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
-	local check = CreateFrame("CheckButton", "RgsCTConfig"..label, frame, "InterfaceOptionsCheckButtonTemplate")
+	local check = CreateFrame("CheckButton", "RgsCTConfig"..label, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
 		if set then set(checked) else C.db[label] = checked end
@@ -89,9 +92,9 @@ local function newCheckBox(frame, label, name, desc, ...)
 	options.check[label] = check
 end
 
-local function newSlider(frame, label, name, desc, min, max, step, ...)
+local function newSlider(label, name, desc, min, max, step, ...)
 	local get, set = select(type(...) == "string" and 6 or 2, ...)
-	local slider = CreateFrame("Slider","RgsCTConfig"..label,frame,"OptionsSliderTemplate")
+	local slider = CreateFrame("Slider","RgsCTConfig"..label,configFrame,"OptionsSliderTemplate")
 	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider.Value:SetPoint("BOTTOM",0,-10)
 	slider.tooltipText = name
@@ -110,70 +113,46 @@ local function newSlider(frame, label, name, desc, min, max, step, ...)
 	SetFramePoint(slider, ...)
 	options.slider[label] = slider
 end
+
+local function newButton(name, desc, ...)
+	local func = select(type(...) == "string" and 6 or 2, ...)
+	local button = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
+	button:SetText(name)
+	button.tooltipText = desc
+	button:SetSize(150, 25)
+	button:SetScript("OnClick", func)
+	SetFramePoint(button,...)
+end
 -- End of GUI template --
 
-local enableMover = false
 C.mover = {}
 
-local configFrame = CreateFrame("Frame","RgsCTConfig",UIParent,"BasicFrameTemplate")
-configFrame:SetSize(360,300)
-configFrame:SetPoint("Center",UIParent,"CENTER")
-configFrame:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16, edgeSize = 16,insets = { left = 4, right = 4, top = 4, bottom = 4 }})
-configFrame:SetMovable(true)
-configFrame:EnableMouse(true)
-configFrame:RegisterForDrag("LeftButton")
-configFrame:SetScript("OnDragStart", configFrame.StartMoving)
-configFrame:SetScript("OnDragStop", configFrame.StopMovingOrSizing)
-configFrame:Hide()
-tinsert(UISpecialFrames, configFrame:GetName())
-
-local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormal")
-titleText:SetPoint("CENTER", configFrame, "TOP", 0, -10)
+local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
+titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 newSlider(
-	configFrame, "fontSize", L["fontSize"], nil, 9, 30, 1,
-	"TOPLEFT", configFrame, "TOPLEFT", 16, -40,
+	"fontSize", L["fontSize"], nil, 9, 30, 1,
+	"TOPLEFT", configFrame, "TOPLEFT", 16, -60,
 	nil,
 	function(value)
 		C.db.fontSize = value
 		C.SetFrames()
 	end)
-newCheckBox(configFrame, "mover", L["mover"], L["moverTooltip"], 1,
-	function() return enableMover end,
+newButton(L["mover"], L["moverTooltip"], 1,
 	function()
-		enableMover = not enableMover
+		InterfaceOptionsFrame:Hide()
+		HideUIPanel(GameMenuFrame)
+		C.enableMover = true
 		for _,frame in ipairs(C.mover) do
-			frame:SetMovable(enableMover)
-			frame:EnableMouse(enableMover)
-			if enableMover then
-				frame.texture:SetColorTexture(1, 1, 0.0, 0.5)
-				frame.text:SetText(frame.string)
-			else
-				frame.texture:SetColorTexture(1, 1, 0.0, 0)
-				frame.text:SetText("")
-				C.db.mover[frame:GetName()]={"BOTTOMLEFT", frame:GetLeft(), frame:GetBottom()}
-			end
+			frame:SetMovable(true)
+			frame:EnableMouse(true)
+			frame.texture:SetColorTexture(1, 1, 0.0, 0.5)
+			frame.text:SetText(frame.string)
 		end
-		C.SetFrames()
 	end)
-newCheckBox(configFrame, "merge", L["merge"], L["mergeTooltip"], 1)
-newCheckBox(configFrame, "leech", L["leech"], L["leechTooltip"], 1)
-newCheckBox(configFrame, "showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
-newCheckBox(configFrame, "periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
-newCheckBox(configFrame, "info", L["showInfo"], L["showInfoTooltip"], 1)
-
--- Add button in interfaceOptions
-local InterfaceFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-InterfaceFrame.name = addonName
-InterfaceOptions_AddCategory(InterfaceFrame)
-
-local InterfaceButton = CreateFrame("Button", nil, InterfaceFrame, "UIPanelButtonTemplate")
-InterfaceButton:SetText(addonName)
-InterfaceButton:SetPoint("TOPLEFT", InterfaceFrame, "TOPLEFT", 8, -8)
-InterfaceButton:SetSize(100, 25)
-InterfaceButton:SetScript("OnClick", function()
-	InterfaceOptionsFrame:Hide()
-	HideUIPanel(GameMenuFrame)
-	configFrame:Show()
-end)
+newCheckBox("merge", L["merge"], L["mergeTooltip"], -1)
+newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
+newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
+newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
+newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)

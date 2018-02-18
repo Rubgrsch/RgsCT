@@ -11,7 +11,7 @@ L["Info"] = "信息"
 
 L["fontSize"] = "字体大小"
 L["mover"] = "调整位置"
-L["moverTooltip"] = "勾选后可以左键拖动调整各个框体的位置。取消勾选后锁定位置。"
+L["moverTooltip"] = "点击后调整框体位置。|n左键拖动：调整框体位置；右键：锁定位置。"
 L["leech"] = "显示吸血"
 L["leechTooltip"] = "显示吸血造成的治疗。"
 L["merge"] = "合并显示"

@@ -11,7 +11,7 @@ L["Info"] = "Info"
 
 L["fontSize"] = "FontSize"
 L["mover"] = "Mover"
-L["moverTooltip"] = "Check to move frames. Uncheck to lock them."
+L["moverTooltip"] = "Click to enable movers.|nLeft Drag to move frames; Right click to lock them."
 L["leech"] = "ShowLeech"
 L["leechTooltip"] = "Show healing from leech."
 L["merge"] = "Merge"
