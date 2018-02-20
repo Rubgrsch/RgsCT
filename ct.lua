@@ -2,7 +2,7 @@ local _, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local format, ipairs, unpack, GetSpellTexture, UnitGUID = format, ipairs, unpack, GetSpellTexture, UnitGUID
+local format, unpack, GetSpellTexture, UnitGUID, pairs = format, unpack, GetSpellTexture, UnitGUID, pairs
 local C_Timer_After = C_Timer.After
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
@@ -52,6 +52,29 @@ local environmentalTypeText = {
 }
 
 local function CreateCTFrame(frameName,name,...)
+	local mover = CreateFrame("Frame", nil, UIParent)
+	mover:Hide()
+	mover:SetSize(...)
+	mover:RegisterForDrag("LeftButton")
+	mover:SetScript("OnDragStart", mover.StartMoving)
+	mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
+	mover:SetMovable(true)
+	mover:EnableMouse(true)
+	mover.texture = mover:CreateTexture(nil, "BACKGROUND")
+	mover.texture:SetColorTexture(1, 1, 0.0, 0.5)
+	mover.texture:SetAllPoints(true)
+	mover.text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
+	mover.text:SetPoint("CENTER", mover, "CENTER", 0, 0)
+	mover.text:SetText(name)
+	mover:SetScript("OnMouseDown",function(_,button)
+		if button == "RightButton" then
+			for f,m in pairs(C.mover) do
+				m:Hide()
+				C.db.mover[f:GetName()]={"BOTTOMLEFT", m:GetLeft(), m:GetBottom()}
+			end
+		end
+	end)
+
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 
 	frame:SetSpacing(3)
@@ -60,37 +83,16 @@ local function CreateCTFrame(frameName,name,...)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
 	frame:SetJustifyH("CENTER")
-	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", frame.StartMoving)
-	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
-	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
-	frame.texture:SetAllPoints(true)
-	frame.string = name
-	frame.text = frame:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
-	frame.text:SetPoint("CENTER", frame, "CENTER", 0, 0)
-	frame.text:SetText("")
-	frame:SetScript("OnMouseDown",function(_,button)
-		if C.enableMover and button == "RightButton" then
-			for _,f in ipairs(C.mover) do
-				f.texture:SetColorTexture(1, 1, 0, 0)
-				f.text:SetText("")
-				f:SetMovable(false)
-				f:EnableMouse(false)
-				C.db.mover[f:GetName()]={"BOTTOMLEFT", f:GetLeft(), f:GetBottom()}
-			end
-			C.enableMover = false
-			C.SetFrames()
-		end
-	end)
+	frame:SetAllPoints(mover)
 
-	C.mover[#C.mover+1] = frame
+	C.mover[frame] = mover
 
 	return frame
 end
 function C.SetFrames()
-	for _,frame in ipairs(C.mover) do
+	for frame,mover in pairs(C.mover) do
 		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
-		frame:SetPoint(unpack(C.db.mover[frame:GetName()]))
+		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
 	end
 end
 

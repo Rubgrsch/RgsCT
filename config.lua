@@ -2,7 +2,7 @@ local addonName, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local error, floor, type, next, select, ipairs, pairs = error, math.floor, type, next, select, ipairs, pairs
+local error, floor, type, next, select, pairs = error, math.floor, type, next, select, pairs
 local PlaySound = PlaySound
 
 local defaults = {
@@ -143,13 +143,7 @@ newButton(L["mover"], L["moverTooltip"], 1,
 	function()
 		InterfaceOptionsFrame:Hide()
 		HideUIPanel(GameMenuFrame)
-		C.enableMover = true
-		for _,frame in ipairs(C.mover) do
-			frame:SetMovable(true)
-			frame:EnableMouse(true)
-			frame.texture:SetColorTexture(1, 1, 0.0, 0.5)
-			frame.text:SetText(frame.string)
-		end
+		for _,mover in pairs(C.mover) do mover:Show() end
 	end)
 newCheckBox("merge", L["merge"], L["mergeTooltip"], -1)
 newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
