@@ -138,14 +138,12 @@ end
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
-local YouDied = format(ERR_PLAYER_DIED_S,UNIT_YOU)
 
 local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == C.playerGUID
 	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
-	local toMe = destGUID == C.playerGUID
-	local toMine = toMe or destGUID == vehicleGUID
+	local toMine = destGUID == C.playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		local amount, _, school, _, _, _, critical = ...
 		if fromMine then merge(5586,amount,school,critical,false) end
@@ -171,9 +169,7 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local environmentalType, amount, _, school = ...
 		if toMine then EnvironmantalString(environmentalType,amount,school) end
 	elseif C.db.info then
-		if Event == "UNIT_DIED" then -- player died
-			if toMe then InfoFrame:AddMessage(YouDied,1,0,0) end
-		elseif Event == "SPELL_INTERRUPT" then -- player interrupts
+		if Event == "SPELL_INTERRUPT" then -- player interrupts
 			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName)) end
 		elseif Event == "SPELL_DISPEL" then -- player dispels
