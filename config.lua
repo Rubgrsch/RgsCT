@@ -137,7 +137,7 @@ newSlider(
 	nil,
 	function(value)
 		C.db.fontSize = value
-		C.SetFrames()
+		C:SetFrames()
 	end)
 newButton(L["mover"], L["moverTooltip"], 1,
 	function()

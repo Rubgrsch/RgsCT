@@ -89,7 +89,7 @@ local function CreateCTFrame(frameName,name,...)
 
 	return frame
 end
-function C.SetFrames()
+function C:SetFrames()
 	for frame,mover in pairs(C.mover) do
 		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
 		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
@@ -187,7 +187,6 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 end
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 eventFrame:SetScript("OnEvent", C.isBfA and function() parseCT(nil,nil,CombatLogGetCurrentEventInfo()) end or parseCT)
 
 local combatF = CreateFrame("Frame")
@@ -202,4 +201,7 @@ combatF:SetScript("OnEvent", function(_,event)
 	end
 end)
 
-rct:AddInitFunc(C.SetFrames)
+rct:AddInitFunc(function()
+	C:SetFrames()
+	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+end)
