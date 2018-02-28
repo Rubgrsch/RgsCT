@@ -2,7 +2,7 @@ local addonName, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local error, floor, type, next, select, pairs = error, math.floor, type, next, select, pairs
+local floor, type, next, unpack, pairs = math.floor, type, next, unpack, pairs
 local PlaySound = PlaySound
 
 local defaults = {
@@ -49,21 +49,17 @@ rct:AddInitFunc(function()
 	end
 end)
 
-local optionsPerLine = 3
-local idx, first, previous = 1
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 configFrame.name = addonName
 InterfaceOptions_AddCategory(configFrame)
+local optionsPerLine = 3
+local idx, first, previous = 1, configFrame, configFrame
 
--- ...: "point" [, relativeTo [, "relativePoint" [, xOffset [, yOffset]]]]
--- or : width(num)
-local function SetFramePoint(frame, ...)
-	local pos = ...
-	if type(pos) == "string" then -- Set custom position
-		frame:SetPoint(...)
+local function SetFramePoint(frame, pos)
+	if type(pos) == "table" then -- Set custom position
+		frame:SetPoint(unpack(pos))
 		idx, first = 1, frame
 	else
-		if not first then error("No previous frame!") end
 		if pos > 0 and idx <= optionsPerLine - pos then -- same line
 			frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
 			idx = idx + 1
@@ -75,9 +71,7 @@ local function SetFramePoint(frame, ...)
 	previous = frame
 end
 
--- ...: args for SetFramePoint, [get[, set]]
-local function newCheckBox(label, name, desc, ...)
-	local get, set = select(type(...) == "string" and 6 or 2, ...)
+local function newCheckBox(label, name, desc, pos, get, set)
 	local check = CreateFrame("CheckButton", "RgsCTConfig"..label, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
@@ -88,12 +82,11 @@ local function newCheckBox(label, name, desc, ...)
 	_G[check:GetName().."Text"]:SetText(name)
 	check.tooltipText = name
 	check.tooltipRequirement = desc
-	SetFramePoint(check, ...)
+	SetFramePoint(check, pos)
 	options.check[label] = check
 end
 
-local function newSlider(label, name, desc, min, max, step, ...)
-	local get, set = select(type(...) == "string" and 6 or 2, ...)
+local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	local slider = CreateFrame("Slider","RgsCTConfig"..label,configFrame,"OptionsSliderTemplate")
 	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider.Value:SetPoint("BOTTOM",0,-10)
@@ -110,18 +103,17 @@ local function newSlider(label, name, desc, min, max, step, ...)
 		if set then set(value) else C.db[label]=value end
 		self.Value:SetText(value)
 	end)
-	SetFramePoint(slider, ...)
+	SetFramePoint(slider, pos)
 	options.slider[label] = slider
 end
 
-local function newButton(name, desc, ...)
-	local func = select(type(...) == "string" and 6 or 2, ...)
+local function newButton(name, desc, pos, func)
 	local button = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
 	button:SetText(name)
 	button.tooltipText = desc
 	button:SetSize(150, 25)
 	button:SetScript("OnClick", func)
-	SetFramePoint(button,...)
+	SetFramePoint(button,pos)
 end
 -- End of GUI template --
 
@@ -133,7 +125,7 @@ titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 newSlider(
 	"fontSize", L["fontSize"], nil, 9, 30, 1,
-	"TOPLEFT", configFrame, "TOPLEFT", 16, -60,
+	{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
 	nil,
 	function(value)
 		C.db.fontSize = value

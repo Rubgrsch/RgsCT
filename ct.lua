@@ -64,7 +64,7 @@ local function CreateCTFrame(frameName,name,...)
 	mover.texture:SetColorTexture(1, 1, 0.0, 0.5)
 	mover.texture:SetAllPoints(true)
 	mover.text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
-	mover.text:SetPoint("CENTER", mover, "CENTER", 0, 0)
+	mover.text:SetPoint("CENTER", mover, "CENTER")
 	mover.text:SetText(name)
 	mover:SetScript("OnMouseDown",function(_,button)
 		if button == "RightButton" then
@@ -110,10 +110,6 @@ end
 
 local function MissString(isIn,spellID,missType)
 	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
-end
-
-local function EnvironmantalString(environmentalType,amount,spellSchool)
-	InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[spellSchool] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount)))
 end
 
 local tAmount, tHits = {}, {}
@@ -167,7 +163,7 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, _, school = ...
-		if toMine then EnvironmantalString(environmentalType,amount,school) end
+		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[school] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount))) end
 	elseif C.db.info then
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
 			local _, _, _, _, extraSpellName = ...
