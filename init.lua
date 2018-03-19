@@ -20,6 +20,4 @@ f:SetScript("OnEvent", function()
 
 	for _,v in ipairs(init) do v() end
 	init = nil
-
-	C.playerGUID = UnitGUID("player")
 end)

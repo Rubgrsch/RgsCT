@@ -6,6 +6,8 @@ local format, unpack, GetSpellTexture, UnitGUID, pairs = format, unpack, GetSpel
 local C_Timer_After = C_Timer.After
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
+local playerGUID
+
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
 	[1] = "ffff00",
@@ -92,6 +94,7 @@ end
 function C:SetFrames()
 	for frame,mover in pairs(C.mover) do
 		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
+		mover:ClearAllPoints()
 		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
 	end
 end
@@ -137,9 +140,9 @@ local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_O
 
 local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
 	local vehicleGUID = UnitGUID("vehicle")
-	local fromMe = sourceGUID == C.playerGUID
+	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
-	local toMine = destGUID == C.playerGUID or destGUID == vehicleGUID
+	local toMine = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		local amount, _, school, _, _, _, critical = ...
 		if fromMine then merge(5586,amount,school,critical,false) end
@@ -165,14 +168,12 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local environmentalType, amount, _, school = ...
 		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[school] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount))) end
 	elseif C.db.info then
+		local _, _, _, _, extraSpellName = ...
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
-			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName)) end
 		elseif Event == "SPELL_DISPEL" then -- player dispels
-			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName)) end
 		elseif Event == "SPELL_STOLEN" then -- player stolen
-			local _, _, _, _, extraSpellName = ...
 			if fromMe then InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName)) end
 		end
 	end
@@ -194,6 +195,7 @@ combatF:SetScript("OnEvent", function(_,event)
 end)
 
 rct:AddInitFunc(function()
+	playerGUID = UnitGUID("player")
 	C:SetFrames()
 	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end)
