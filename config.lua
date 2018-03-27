@@ -137,7 +137,12 @@ newButton(L["mover"], L["moverTooltip"], 1,
 		HideUIPanel(GameMenuFrame)
 		for _,mover in pairs(C.mover) do mover:Show() end
 	end)
-newCheckBox("merge", L["merge"], L["mergeTooltip"], -1)
+newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
+	nil,
+	function(checked)
+		C.db.merge = checked
+		C:SetMerge()
+	end)
 newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
 newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)

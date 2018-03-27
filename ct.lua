@@ -3,10 +3,12 @@ local C, L = unpack(rct)
 
 local _G = _G
 local format, unpack, GetSpellTexture, UnitGUID, pairs = format, unpack, GetSpellTexture, UnitGUID, pairs
-local C_Timer_After = C_Timer.After
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 local playerGUID
+
+-- Data for merging, for now it contains school/critical
+local spellData = {}
 
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
@@ -53,6 +55,15 @@ local environmentalTypeText = {
 	Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
 }
 
+local function moverLock(_,button)
+	if button == "RightButton" then
+		for f,m in pairs(C.mover) do
+			m:Hide()
+			C.db.mover[f:GetName()]={"BOTTOMLEFT", m:GetLeft(), m:GetBottom()}
+		end
+	end
+end
+
 local function CreateCTFrame(frameName,name,...)
 	local mover = CreateFrame("Frame", nil, UIParent)
 	mover:Hide()
@@ -68,14 +79,7 @@ local function CreateCTFrame(frameName,name,...)
 	mover.text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
 	mover.text:SetPoint("CENTER", mover, "CENTER")
 	mover.text:SetText(name)
-	mover:SetScript("OnMouseDown",function(_,button)
-		if button == "RightButton" then
-			for f,m in pairs(C.mover) do
-				m:Hide()
-				C.db.mover[f:GetName()]={"BOTTOMLEFT", m:GetLeft(), m:GetBottom()}
-			end
-		end
-	end)
+	mover:SetScript("OnMouseDown",moverLock)
 
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 
@@ -91,6 +95,7 @@ local function CreateCTFrame(frameName,name,...)
 
 	return frame
 end
+
 function C:SetFrames()
 	for frame,mover in pairs(C.mover) do
 		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
@@ -115,23 +120,58 @@ local function MissString(isIn,spellID,missType)
 	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
 end
 
-local tAmount, tHits = {}, {}
-local function merge(spellID,amount,school,critical,isHealing)
-	if C.db.merge then
-		if tAmount[spellID] then
-			tAmount[spellID] = tAmount[spellID] + amount
-			tHits[spellID] = tHits[spellID] + 1
-		else
-			tAmount[spellID] = amount
-			tHits[spellID] = 1
-			C_Timer_After(0.05, function()
-				DamageHealingString(false,spellID,tAmount[spellID],school,critical,isHealing,tHits[spellID])
+local tCount = 0
+local tAmount, tHits, tTime = {}, {}, {}
+local merge
+local function mergeFunc(_,spellID,amount,school,critical) -- when merge, isHealing is not needed
+	if not spellData[spellID] then
+		spellData[spellID] = {school,critical}
+	else
+		spellData[spellID][2] = critical
+	end
+	if tAmount[spellID] then
+		tAmount[spellID] = tAmount[spellID] + amount
+		tHits[spellID] = tHits[spellID] + 1
+	else
+		tAmount[spellID] = amount
+		tHits[spellID] = 1
+		tTime[spellID] = 0
+		tCount = tCount + 1
+	end
+end
+
+local timerFrame = CreateFrame("Frame")
+timerFrame:SetScript("OnUpdate", function(_,elapsed)
+	if tCount > 0 then
+		for spellID,Time in pairs(tTime) do
+			Time = Time + elapsed
+			if Time > 0.05 then
+				local data = spellData[spellID]
+				DamageHealingString(false,spellID,tAmount[spellID],data[1],data[2],nil,tHits[spellID])
 				tAmount[spellID] = nil
 				tHits[spellID] = nil
-			end)
+				tTime[spellID] = nil
+				tCount = tCount - 1
+			else
+				tTime[spellID] = Time
+			end
 		end
+	end
+end)
+
+function C:SetMerge()
+	if C.db.merge then
+		merge = mergeFunc
+		timerFrame:Show()
 	else
-		DamageHealingString(false,spellID,amount,school,critical,isHealing)
+		for spellID in pairs(tTime) do
+			tAmount[spellID] = nil
+			tHits[spellID] = nil
+			tTime[spellID] = nil
+		end
+		tCount = 0
+		merge = DamageHealingString
+		timerFrame:Hide()
 	end
 end
 
@@ -145,12 +185,12 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	local toMine = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		local amount, _, school, _, _, _, critical = ...
-		if fromMine then merge(5586,amount,school,critical,false) end
+		if fromMine then merge(false,5586,amount,school,critical) end
 		if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (C.db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		local spellId, _, _, amount, _, school, _, _, _, critical = ...
 		if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
-		elseif fromMine then merge(spellId,amount,school,critical,false) end
+		elseif fromMine then merge(false,spellId,amount,school,critical) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		local missType = ...
 		if fromMe then MissString(false,5586,missType) end
@@ -162,7 +202,7 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	elseif Event == "SPELL_HEAL" or (C.db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
 		if (spellId == 143924 and not C.db.leech) or amount == overhealing then return end
-		if fromMine then merge(spellId,amount,spellSchool,critical,true)
+		if fromMine then merge(false,spellId,amount,spellSchool,critical)
 		elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, _, school = ...
@@ -197,5 +237,6 @@ end)
 rct:AddInitFunc(function()
 	playerGUID = UnitGUID("player")
 	C:SetFrames()
+	C:SetMerge()
 	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end)
