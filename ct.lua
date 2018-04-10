@@ -7,9 +7,6 @@ local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 local playerGUID
 
--- Data for merging, for now it contains school/critical
-local spellData = {}
-
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
 	[1] = "ffff00",
@@ -120,15 +117,15 @@ local function MissString(isIn,spellID,missType)
 	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
 end
 
+-- Data for merging, for now it contains school/critical
+local SpellSchool, SpellCrit = {}, {}
+
 local tCount = 0
 local tAmount, tHits, tTime = {}, {}, {}
 local merge
 local function mergeFunc(_,spellID,amount,school,critical) -- when merge, isHealing is not needed
-	if not spellData[spellID] then
-		spellData[spellID] = {school,critical}
-	else
-		spellData[spellID][2] = critical
-	end
+	SpellSchool[spellID] = school
+	SpellCrit[spellID] = critical
 	if tAmount[spellID] then
 		tAmount[spellID] = tAmount[spellID] + amount
 		tHits[spellID] = tHits[spellID] + 1
@@ -146,8 +143,7 @@ timerFrame:SetScript("OnUpdate", function(_,elapsed)
 		for spellID,Time in pairs(tTime) do
 			Time = Time + elapsed
 			if Time > 0.05 then
-				local data = spellData[spellID]
-				DamageHealingString(false,spellID,tAmount[spellID],data[1],data[2],nil,tHits[spellID])
+				DamageHealingString(false,spellID,tAmount[spellID],SpellSchool[spellID],SpellCrit[spellID],nil,tHits[spellID])
 				tAmount[spellID] = nil
 				tHits[spellID] = nil
 				tTime[spellID] = nil
@@ -164,11 +160,9 @@ function C:SetMerge()
 		merge = mergeFunc
 		timerFrame:Show()
 	else
-		for spellID in pairs(tTime) do
-			tAmount[spellID] = nil
-			tHits[spellID] = nil
-			tTime[spellID] = nil
-		end
+		tAmount = {}
+		tHits = {}
+		tTime = {}
 		tCount = 0
 		merge = DamageHealingString
 		timerFrame:Hide()
@@ -207,14 +201,14 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, _, school = ...
 		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[school] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount))) end
-	elseif C.db.info then
+	elseif C.db.info and fromMe then
 		local _, _, _, _, extraSpellName = ...
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
-			if fromMe then InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName)) end
+			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName))
 		elseif Event == "SPELL_DISPEL" then -- player dispels
-			if fromMe then InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName)) end
+			InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName))
 		elseif Event == "SPELL_STOLEN" then -- player stolen
-			if fromMe then InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName)) end
+			InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName))
 		end
 	end
 end
