@@ -2,7 +2,7 @@ local addonName, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local floor, type, next, unpack, pairs = math.floor, type, next, unpack, pairs
+local floor, type, next, unpack, pairs, ipairs = math.floor, type, next, unpack, pairs, ipairs
 local PlaySound = PlaySound
 
 local defaults = {
@@ -117,7 +117,7 @@ local backdrop = {
 	insets = {left = 3, right = 3, top = 3, bottom = 3},
 }
 
-local function newDropdown(label, name, desc, pos, tbl, get, set, isFont)
+local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local f = CreateFrame("Frame", nil, configFrame)
 	local button = CreateFrame("Button", nil, f)
 	local list = CreateFrame("Frame",nil,f)
@@ -149,7 +149,7 @@ local function newDropdown(label, name, desc, pos, tbl, get, set, isFont)
 		end
 		list:Hide()
 	end)
-	
+
 	button:SetSize(150,20)
 	button:SetPoint("LEFT",f,"LEFT",0,0)
 	list:SetPoint("TOP",f,"BOTTOM")
@@ -160,7 +160,7 @@ local function newDropdown(label, name, desc, pos, tbl, get, set, isFont)
 		PlaySound(856)
 		ToggleFrame(list)
 	end)
-	local idx, lastOpt = 1, button
+	local lastOpt = button
 	local function OnClick(self)
 		PlaySound(856)
 		local chosen = self.value
@@ -219,9 +219,9 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 rct:AddInitFunc(function()
-	newDropdown("font",L["font"],L["fontDesc"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LibStub("LibSharedMedia-3.0"):List("font"),
+	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LibStub("LibSharedMedia-3.0"):List("font"),
 		nil,
-		function(chosen) 
+		function(chosen)
 			C.db.font = chosen
 			C:SetFrames()
 		end,true)
