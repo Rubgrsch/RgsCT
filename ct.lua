@@ -95,7 +95,7 @@ end
 
 function C:SetFrames()
 	for frame,mover in pairs(C.mover) do
-		frame:SetFont(STANDARD_TEXT_FONT, C.db.fontSize, "OUTLINE")
+		frame:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",C.db.font), C.db.fontSize, "OUTLINE")
 		mover:ClearAllPoints()
 		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
 	end

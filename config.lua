@@ -7,6 +7,7 @@ local PlaySound = PlaySound
 
 local defaults = {
 	fontSize = 14,
+	font = LibStub("LibSharedMedia-3.0"):List("font")[1],
 	mover = {
 		RgsCTIn = {"CENTER",-300,0},
 		RgsCTOut = {"CENTER",300,0},
@@ -39,15 +40,6 @@ end)
 -- GUI Template --
 -- Table for DB initialize
 local options = {check={}, slider={}}
-rct:AddInitFunc(function()
-	-- Set values in config
-	for _,v in pairs(options.check) do
-		v:SetChecked(v.getfunc())
-	end
-	for _,v in pairs(options.slider) do
-		v:SetValue(v.getfunc(),true)
-	end
-end)
 
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 configFrame.name = addonName
@@ -115,6 +107,109 @@ local function newButton(name, desc, pos, func)
 	button:SetScript("OnClick", func)
 	SetFramePoint(button,pos)
 end
+
+local backdrop = {
+	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+	edgeSize = 3,
+	tileSize = 3,
+	tile = true,
+	insets = {left = 3, right = 3, top = 3, bottom = 3},
+}
+
+local function newDropdown(label, name, desc, pos, tbl, get, set, isFont)
+	local f = CreateFrame("Frame", nil, configFrame)
+	local button = CreateFrame("Button", nil, f)
+	local list = CreateFrame("Frame",nil,f)
+	f.title = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	f.title:SetText(name)
+	f.title:SetPoint("TOPLEFT",f,"TOPLEFT",0,15)
+	f:SetSize(150,20)
+	f:SetBackdrop(backdrop)
+	f:SetBackdropColor(0,0,0, 0.5)
+	f:SetBackdropBorderColor(0, 0, 0)
+	f.options = {}
+	f.text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	f.text:SetPoint("LEFT",f,"LEFT",5,0)
+
+	f:SetScript("OnShow", function()
+		local chosen = get or C.db[label]
+		f.chosen = chosen
+		for value, opt in pairs(f.options) do
+			if chosen == value then
+				opt:SetBackdropColor(0.8,0.8,0.3,0.5)
+			else
+				opt:SetBackdropColor(0, 0, 0, 0.5)
+			end
+		end
+		f.text:SetText(chosen)
+		if isFont then
+			local _,fontSize = f.text:GetFont()
+			f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize)
+		end
+		list:Hide()
+	end)
+	
+	button:SetSize(150,20)
+	button:SetPoint("LEFT",f,"LEFT",0,0)
+	list:SetPoint("TOP",f,"BOTTOM")
+	list:SetBackdrop(backdrop)
+	list:SetBackdropColor(0,0,0,1)
+	list:SetBackdropBorderColor(0, 0, 0)
+	button:SetScript("OnClick",function()
+		PlaySound(856)
+		ToggleFrame(list)
+	end)
+	local idx, lastOpt = 1, button
+	local function OnClick(self)
+		PlaySound(856)
+		local chosen = self.value
+		f.chosen = chosen
+		for value, opt in pairs(f.options) do
+			if chosen == value then
+				opt:SetBackdropColor(0.8,0.8,0.3,0.5)
+			else
+				opt:SetBackdropColor(0, 0, 0, 0.5)
+			end
+		end
+		f.text:SetText(chosen)
+		if set then set(chosen) else C.db[label] = chosen end
+		if isFont then
+			local _,fontSize = f.text:GetFont()
+			f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize)
+		end
+		list:Hide()
+	end
+	local function OnEnter(self)
+		if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end
+	end
+	local function OnLeave(self)
+		if f.chosen ~= self.value then self:SetBackdropColor(0,0,0,0.5) end
+	end
+	for _, value in ipairs(tbl) do
+		local opt = CreateFrame("Button", nil, list)
+		opt.value = value
+		opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT")
+		lastOpt = opt
+		opt:SetSize(150,20)
+		opt:SetBackdrop(backdrop)
+		opt:SetBackdropColor(0,0,0,0.5)
+		local s = opt:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+		s:SetText(value)
+		s:SetPoint("LEFT",opt,"LEFT",5,0)
+		opt:SetScript("OnClick", OnClick)
+		opt:SetScript("OnEnter", OnEnter)
+		opt:SetScript("OnLeave", OnLeave)
+		if isFont then
+			local _,fontSize = s:GetFont()
+			s:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",value),fontSize)
+		end
+
+		f.options[value] = opt
+	end
+	list:SetSize(150, #tbl*20)
+	SetFramePoint(f,pos)
+end
 -- End of GUI template --
 
 C.mover = {}
@@ -123,27 +218,41 @@ local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarg
 titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
-newSlider(
-	"fontSize", L["fontSize"], nil, 9, 30, 1,
-	{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},
-	nil,
-	function(value)
-		C.db.fontSize = value
-		C:SetFrames()
-	end)
-newButton(L["mover"], L["moverTooltip"], 1,
-	function()
-		InterfaceOptionsFrame:Hide()
-		HideUIPanel(GameMenuFrame)
-		for _,mover in pairs(C.mover) do mover:Show() end
-	end)
-newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
-	nil,
-	function(checked)
-		C.db.merge = checked
-		C:SetMerge()
-	end)
-newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
-newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
-newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
-newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
+rct:AddInitFunc(function()
+	newDropdown("font",L["font"],L["fontDesc"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LibStub("LibSharedMedia-3.0"):List("font"),
+		nil,
+		function(chosen) 
+			C.db.font = chosen
+			C:SetFrames()
+		end,true)
+	newSlider(
+		"fontSize", L["fontSize"], nil, 9, 30, 1, 1,
+		nil,
+		function(value)
+			C.db.fontSize = value
+			C:SetFrames()
+		end)
+	newButton(L["mover"], L["moverTooltip"], 1,
+		function()
+			InterfaceOptionsFrame:Hide()
+			HideUIPanel(GameMenuFrame)
+			for _,mover in pairs(C.mover) do mover:Show() end
+		end)
+	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
+		nil,
+		function(checked)
+			C.db.merge = checked
+			C:SetMerge()
+		end)
+	newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
+	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
+	newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
+	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
+	-- Set values in config
+	for _,v in pairs(options.check) do
+		v:SetChecked(v.getfunc())
+	end
+	for _,v in pairs(options.slider) do
+		v:SetValue(v.getfunc(),true)
+	end
+end)

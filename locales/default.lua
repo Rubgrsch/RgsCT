@@ -9,6 +9,7 @@ L["In"] = "In"
 L["Out"] = "Out"
 L["Info"] = "Info"
 
+L["font"] = "Font"
 L["fontSize"] = "FontSize"
 L["mover"] = "Mover"
 L["moverTooltip"] = "Click to enable movers.|nLeft Drag to move frames; Right click to lock them."

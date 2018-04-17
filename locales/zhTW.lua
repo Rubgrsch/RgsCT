@@ -9,9 +9,10 @@ L["In"] = "承受"
 L["Out"] = "輸出"
 L["Info"] = "訊息"
 
+L["font"] = "字型"
 L["fontSize"] = "字型大小"
 L["mover"] = "調整位置"
-L["moverTooltip"] = "點擊後調整框體位置。|n左鍵拖動：調整框體位置；右鍵：鎖定位置。" --<<
+L["moverTooltip"] = "點擊後調整框體位置。|n左鍵拖動：調整框體位置；右鍵：鎖定位置。"
 L["leech"] = "顯示吸血"
 L["leechTooltip"] = "顯示吸血造成的治療。"
 L["merge"] = "合併顯示"
