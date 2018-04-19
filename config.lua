@@ -129,24 +129,27 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	f:SetBackdropColor(0,0,0, 0.5)
 	f:SetBackdropBorderColor(0, 0, 0)
 	f.options = {}
+	f.offset = 0
 	f.text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	local _,fontSize = f.text:GetFont()
 	f.text:SetPoint("LEFT",f,"LEFT",5,0)
 
-	f:SetScript("OnShow", function()
-		local chosen = get or C.db[label]
-		f.chosen = chosen
-		for value, opt in pairs(f.options) do
-			if chosen == value then
+	local function SetHighlight()
+		local offset, chosen = f.offset, f.chosen
+		for i, opt in ipairs(f.options) do
+			if chosen == tbl[i+offset] then
 				opt:SetBackdropColor(0.8,0.8,0.3,0.5)
 			else
 				opt:SetBackdropColor(0, 0, 0, 0.5)
 			end
 		end
+	end
+	f:SetScript("OnShow", function()
+		local chosen = get or C.db[label]
+		f.chosen = chosen
+		SetHighlight()
 		f.text:SetText(chosen)
-		if isFont then
-			local _,fontSize = f.text:GetFont()
-			f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize)
-		end
+		if isFont then f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 		list:Hide()
 	end)
 
@@ -160,54 +163,58 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		PlaySound(856)
 		ToggleFrame(list)
 	end)
-	local lastOpt = button
 	local function OnClick(self)
 		PlaySound(856)
 		local chosen = self.value
 		f.chosen = chosen
-		for value, opt in pairs(f.options) do
-			if chosen == value then
-				opt:SetBackdropColor(0.8,0.8,0.3,0.5)
-			else
-				opt:SetBackdropColor(0, 0, 0, 0.5)
-			end
-		end
+		SetHighlight()
 		f.text:SetText(chosen)
 		if set then set(chosen) else C.db[label] = chosen end
-		if isFont then
-			local _,fontSize = f.text:GetFont()
-			f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize)
-		end
+		if isFont then f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 		list:Hide()
 	end
-	local function OnEnter(self)
-		if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end
+	local function OnEnter(self) if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end end
+	local function OnLeave(self) if f.chosen ~= self.value then self:SetBackdropColor(0,0,0,0.5) end end
+	local function SetListValue()
+		local offset = f.offset
+		for i, opt in ipairs(f.options) do
+			local value = tbl[i+offset]
+			opt.value = value
+			opt.text:SetText(value)
+			if isFont then opt.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",value),fontSize) end
+		end
 	end
-	local function OnLeave(self)
-		if f.chosen ~= self.value then self:SetBackdropColor(0,0,0,0.5) end
+	local Len = #tbl
+	local listLen = min(Len,10)
+	local function OnMouseWheel(_,direction)
+		local offset = f.offset
+		offset = offset - direction
+		if offset < 0 then offset = 0
+		elseif offset > Len-10 then offset = max(Len-10, 0) end
+		f.offset = offset
+		SetHighlight()
+		SetListValue()
 	end
-	for _, value in ipairs(tbl) do
+	local lastOpt = button
+	for i=1, listLen do
 		local opt = CreateFrame("Button", nil, list)
-		opt.value = value
 		opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT")
 		lastOpt = opt
 		opt:SetSize(150,20)
 		opt:SetBackdrop(backdrop)
 		opt:SetBackdropColor(0,0,0,0.5)
-		local s = opt:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-		s:SetText(value)
-		s:SetPoint("LEFT",opt,"LEFT",5,0)
+		opt.text = opt:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+		opt.text:SetPoint("LEFT",opt,"LEFT",5,0)
 		opt:SetScript("OnClick", OnClick)
 		opt:SetScript("OnEnter", OnEnter)
 		opt:SetScript("OnLeave", OnLeave)
-		if isFont then
-			local _,fontSize = s:GetFont()
-			s:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",value),fontSize)
-		end
+		opt:EnableMouseWheel(true)
+		opt:SetScript("OnMouseWheel",OnMouseWheel)
 
-		f.options[value] = opt
+		f.options[i] = opt
 	end
-	list:SetSize(150, #tbl*20)
+	list:SetSize(150, listLen*20)
+	SetListValue()
 	SetFramePoint(f,pos)
 end
 -- End of GUI template --
