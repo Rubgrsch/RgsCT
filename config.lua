@@ -39,7 +39,7 @@ end)
 
 -- GUI Template --
 -- Table for DB initialize
-local options = {check={}, slider={}}
+local options = {check={}, slider={}, dropdown={}}
 
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 configFrame.name = addonName
@@ -144,14 +144,13 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 			end
 		end
 	end
-	f:SetScript("OnShow", function()
-		local chosen = get or C.db[label]
+	function f:SetValue()
+		local chosen = get and get() or C.db[label]
 		f.chosen = chosen
 		SetHighlight()
 		f.text:SetText(chosen)
 		if isFont then f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
-		list:Hide()
-	end)
+	end
 
 	button:SetSize(150,20)
 	button:SetPoint("LEFT",f,"LEFT",0,0)
@@ -159,6 +158,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	list:SetBackdrop(backdrop)
 	list:SetBackdropColor(0,0,0,1)
 	list:SetBackdropBorderColor(0, 0, 0)
+	list:Hide()
 	button:SetScript("OnClick",function()
 		PlaySound(856)
 		ToggleFrame(list)
@@ -216,6 +216,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	list:SetSize(150, listLen*20)
 	SetListValue()
 	SetFramePoint(f,pos)
+	options.dropdown[label] = f
 end
 -- End of GUI template --
 
@@ -261,5 +262,8 @@ rct:AddInitFunc(function()
 	end
 	for _,v in pairs(options.slider) do
 		v:SetValue(v.getfunc(),true)
+	end
+	for _,v in pairs(options.dropdown) do
+		v:SetValue()
 	end
 end)
