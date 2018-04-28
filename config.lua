@@ -119,20 +119,31 @@ local backdrop = {
 
 local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local f = CreateFrame("Frame", nil, configFrame)
-	local button = CreateFrame("Button", nil, f)
-	local list = CreateFrame("Frame",nil,f)
-	f.title = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	f.title:SetText(name)
-	f.title:SetPoint("TOPLEFT",f,"TOPLEFT",0,15)
 	f:SetSize(150,20)
 	f:SetBackdrop(backdrop)
 	f:SetBackdropColor(0,0,0, 0.5)
 	f:SetBackdropBorderColor(0, 0, 0)
 	f.options = {}
 	f.offset = 0
-	f.text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	local _,fontSize = f.text:GetFont()
-	f.text:SetPoint("LEFT",f,"LEFT",5,0)
+	local button = CreateFrame("Button", nil, f)
+	button:SetSize(150,20)
+	button:SetPoint("LEFT",f,"LEFT",0,0)
+	local list = CreateFrame("Frame",nil,f)
+	list:SetPoint("TOP",f,"BOTTOM")
+	list:SetBackdrop(backdrop)
+	list:SetBackdropColor(0,0,0,1)
+	list:SetBackdropBorderColor(0, 0, 0)
+	list:Hide()
+	local title = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	title:SetText(name)
+	title:SetPoint("TOPLEFT",f,"TOPLEFT",0,14)
+	local texture = button:CreateTexture(nil, "BACKGROUND")
+	texture:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
+	texture:SetPoint("RIGHT",button,"RIGHT")
+	texture:SetSize(20,20)
+	local text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	local _,fontSize = text:GetFont()
+	text:SetPoint("LEFT",f,"LEFT",5,0)
 
 	local function SetHighlight()
 		local offset, chosen = f.offset, f.chosen
@@ -144,21 +155,14 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 			end
 		end
 	end
-	function f:SetValue()
+	function f:Init()
 		local chosen = get and get() or C.db[label]
 		f.chosen = chosen
 		SetHighlight()
-		f.text:SetText(chosen)
-		if isFont then f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		text:SetText(chosen)
+		if isFont then text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 	end
 
-	button:SetSize(150,20)
-	button:SetPoint("LEFT",f,"LEFT",0,0)
-	list:SetPoint("TOP",f,"BOTTOM")
-	list:SetBackdrop(backdrop)
-	list:SetBackdropColor(0,0,0,1)
-	list:SetBackdropBorderColor(0, 0, 0)
-	list:Hide()
 	button:SetScript("OnClick",function()
 		PlaySound(856)
 		ToggleFrame(list)
@@ -168,9 +172,9 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		local chosen = self.value
 		f.chosen = chosen
 		SetHighlight()
-		f.text:SetText(chosen)
+		text:SetText(chosen)
 		if set then set(chosen) else C.db[label] = chosen end
-		if isFont then f.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		if isFont then text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 		list:Hide()
 	end
 	local function OnEnter(self) if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end end
@@ -264,6 +268,6 @@ rct:AddInitFunc(function()
 		v:SetValue(v.getfunc(),true)
 	end
 	for _,v in pairs(options.dropdown) do
-		v:SetValue()
+		v:Init()
 	end
 end)
