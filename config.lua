@@ -18,6 +18,7 @@ local defaults = {
 	leech = false,
 	periodic = true,
 	info = false,
+	["in"] = true,
 }
 
 rct:AddInitFunc(function()
@@ -250,6 +251,10 @@ rct:AddInitFunc(function()
 			HideUIPanel(GameMenuFrame)
 			for _,mover in pairs(C.mover) do mover:Show() end
 		end)
+	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], -1)
+	newCheckBox("in", L["showIn"], L["showInToolltip"], 1,
+		nil,
+		function(checked) if checked then RgsCTIn:Show() else RgsCTIn:Hide() end; C.db["in"] = checked end)
 	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
 		nil,
 		function(checked)
@@ -259,7 +264,6 @@ rct:AddInitFunc(function()
 	newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
 	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 	newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
-	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
 	-- Set values in config
 	for _,v in pairs(options.check) do
 		v:SetChecked(v.getfunc())
