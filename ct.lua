@@ -94,10 +94,10 @@ local function CreateCTFrame(frameName,name,...)
 end
 
 function C:SetFrames()
-	for frame,mover in pairs(C.mover) do
-		frame:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",C.db.font), C.db.fontSize, "OUTLINE")
+	for frame,mover in pairs(self.mover) do
+		frame:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize, "OUTLINE")
 		mover:ClearAllPoints()
-		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
+		mover:SetPoint(unpack(self.db.mover[frame:GetName()]))
 	end
 end
 
@@ -156,7 +156,7 @@ timerFrame:SetScript("OnUpdate", function(_,elapsed)
 end)
 
 function C:SetMerge()
-	if C.db.merge then
+	if self.db.merge then
 		merge = mergeFunc
 		timerFrame:Show()
 	else
