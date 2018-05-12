@@ -252,7 +252,7 @@ rct:AddInitFunc(function()
 			for _,mover in pairs(C.mover) do mover:Show() end
 		end)
 	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], -1)
-	newCheckBox("in", L["showIn"], L["showInToolltip"], 1,
+	newCheckBox("in", L["showIn"], L["showInTooltip"], 1,
 		nil,
 		function(checked) if checked then RgsCTIn:Show() else RgsCTIn:Hide() end; C.db["in"] = checked end)
 	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
