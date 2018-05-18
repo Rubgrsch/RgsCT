@@ -170,44 +170,44 @@ end
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
-local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
+local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10)
 	local db = C.db
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMine = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
-		local amount, _, school, _, _, _, critical = ...
-		if fromMine then merge(false,5586,amount,school,critical) end
-		if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
+		-- amount, overkill, school, resisted, blocked, absorbed, critical
+		if fromMine then merge(false,5586,arg1,arg3,arg7) end
+		if toMine then DamageHealingString(true,5586,arg1,arg3,arg7,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
-		local spellId, _, _, amount, _, school, _, _, _, critical = ...
-		if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
-		elseif fromMine then merge(false,spellId,amount,school,critical) end
+		-- spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
+		if toMine then DamageHealingString(true,arg1,arg4,arg6,arg10,false)
+		elseif fromMine then merge(false,arg1,arg4,arg6,arg10) end
 	elseif Event == "SWING_MISSED" then -- melee miss
-		local missType = ...
-		if fromMe then MissString(false,5586,missType) end
-		if toMine then MissString(true,5586,missType) end
+		-- missType, isOffHand, amountMissed
+		if fromMe then MissString(false,5586,arg1) end
+		if toMine then MissString(true,5586,arg1) end
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then -- spell miss
-		local spellId, _, _, missType = ...
-		if fromMe then MissString(false,spellId,missType) end
-		if toMine then MissString(true,spellId,missType) end
+		-- spellId, spellName, spellSchool, missType, isOffHand, amountMissed
+		if fromMe then MissString(false,arg1,arg4) end
+		if toMine then MissString(true,arg1,arg4) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
-		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
-		if (spellId == 143924 and not db.leech) or amount == overhealing then return end
-		if fromMine then merge(false,spellId,amount,spellSchool,critical)
-		elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
+		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical 
+		if (arg1 == 143924 and not db.leech) or arg4 == arg5 then return end
+		if fromMine then merge(false,arg1,arg4,arg3,arg7)
+		elseif toMine then DamageHealingString(true,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
-		local environmentalType, amount, _, school = ...
-		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[school] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount))) end
+		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
+		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
 	elseif db.info and fromMe then
-		local _, _, _, _, extraSpellName = ...
+		-- spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType 
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
-			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName))
+			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, arg5))
 		elseif Event == "SPELL_DISPEL" then -- player dispels
-			InfoFrame:AddMessage(format(L["Dispeled"], destName, extraSpellName))
+			InfoFrame:AddMessage(format(L["Dispeled"], destName, arg5))
 		elseif Event == "SPELL_STOLEN" then -- player stolen
-			InfoFrame:AddMessage(format(L["Stole"], destName, extraSpellName))
+			InfoFrame:AddMessage(format(L["Stole"], destName, arg5))
 		end
 	end
 end
