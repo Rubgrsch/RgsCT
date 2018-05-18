@@ -81,8 +81,8 @@ end
 
 local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	local slider = CreateFrame("Slider","RgsCTConfig"..label,configFrame,"OptionsSliderTemplate")
-	slider.Value = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	slider.Value:SetPoint("BOTTOM",0,-10)
+	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	text:SetPoint("BOTTOM",0,-10)
 	slider.tooltipText = name
 	slider.tooltipRequirement = desc
 	slider:SetMinMaxValues(min, max)
@@ -94,7 +94,7 @@ local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	slider:SetScript("OnValueChanged", function(self,value)
 		value = min + floor((value - min) / step + 0.5) * step
 		if set then set(value) else C.db[label]=value end
-		self.Value:SetText(value)
+		text:SetText(value)
 	end)
 	SetFramePoint(slider, pos)
 	options.slider[label] = slider
@@ -124,7 +124,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	f:SetBackdrop(backdrop)
 	f:SetBackdropColor(0,0,0, 0.5)
 	f:SetBackdropBorderColor(0, 0, 0)
-	f.options = {}
+	local opts = {}
 	f.offset = 0
 	local button = CreateFrame("Button", nil, f)
 	button:SetSize(150,20)
@@ -148,7 +148,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 
 	local function SetHighlight()
 		local offset, chosen = f.offset, f.chosen
-		for i, opt in ipairs(f.options) do
+		for i, opt in ipairs(opts) do
 			if chosen == tbl[i+offset] then
 				opt:SetBackdropColor(0.8,0.8,0.3,0.5)
 			else
@@ -182,7 +182,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local function OnLeave(self) if f.chosen ~= self.value then self:SetBackdropColor(0,0,0,0.5) end end
 	local function SetListValue()
 		local offset = f.offset
-		for i, opt in ipairs(f.options) do
+		for i, opt in ipairs(opts) do
 			local value = tbl[i+offset]
 			opt.value = value
 			opt.text:SetText(value)
@@ -216,7 +216,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		opt:EnableMouseWheel(true)
 		opt:SetScript("OnMouseWheel",OnMouseWheel)
 
-		f.options[i] = opt
+		opts[i] = opt
 	end
 	list:SetSize(150, listLen*20)
 	SetListValue()

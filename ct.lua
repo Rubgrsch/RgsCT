@@ -70,12 +70,12 @@ local function CreateCTFrame(frameName,name,...)
 	mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
 	mover:SetMovable(true)
 	mover:EnableMouse(true)
-	mover.texture = mover:CreateTexture(nil, "BACKGROUND")
-	mover.texture:SetColorTexture(1, 1, 0.0, 0.5)
-	mover.texture:SetAllPoints(true)
-	mover.text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
-	mover.text:SetPoint("CENTER", mover, "CENTER")
-	mover.text:SetText(name)
+	local texture = mover:CreateTexture(nil, "BACKGROUND")
+	texture:SetColorTexture(1, 1, 0.0, 0.5)
+	texture:SetAllPoints(true)
+	local text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
+	text:SetPoint("CENTER", mover, "CENTER")
+	text:SetText(name)
 	mover:SetScript("OnMouseDown",moverLock)
 
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
@@ -119,9 +119,7 @@ end
 
 -- Data for merging, for now it contains school/critical
 local SpellSchool, SpellCrit = {}, {}
-
-local tCount = 0
-local tAmount, tHits, tTime = {}, {}, {}
+local tCount, tAmount, tHits, tTime = 0, {}, {}, {}
 local merge
 local function mergeFunc(_,spellID,amount,school,critical) -- when merge, isHealing is not needed
 	SpellSchool[spellID] = school
@@ -173,15 +171,16 @@ local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
 local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, ...)
+	local db = C.db
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == playerGUID
-	local fromMine = fromMe or (C.db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
+	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMine = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		local amount, _, school, _, _, _, critical = ...
 		if fromMine then merge(false,5586,amount,school,critical) end
 		if toMine then DamageHealingString(true,5586,amount,school,critical,false) end
-	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (C.db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
+	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		local spellId, _, _, amount, _, school, _, _, _, critical = ...
 		if toMine then DamageHealingString(true,spellId,amount,school,critical,false)
 		elseif fromMine then merge(false,spellId,amount,school,critical) end
@@ -193,15 +192,15 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		local spellId, _, _, missType = ...
 		if fromMe then MissString(false,spellId,missType) end
 		if toMine then MissString(true,spellId,missType) end
-	elseif Event == "SPELL_HEAL" or (C.db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
+	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		local spellId, _, spellSchool, amount, overhealing, _, critical = ...
-		if (spellId == 143924 and not C.db.leech) or amount == overhealing then return end
+		if (spellId == 143924 and not db.leech) or amount == overhealing then return end
 		if fromMine then merge(false,spellId,amount,spellSchool,critical)
 		elseif toMine then DamageHealingString(true,spellId,amount,spellSchool,critical,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		local environmentalType, amount, _, school = ...
 		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[school] or "ffffff",environmentalTypeText[environmentalType],L["NumUnitFormat"](amount))) end
-	elseif C.db.info and fromMe then
+	elseif db.info and fromMe then
 		local _, _, _, _, extraSpellName = ...
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
 			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, extraSpellName))
