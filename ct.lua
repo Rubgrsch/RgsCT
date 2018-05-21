@@ -68,24 +68,23 @@ local function CreateCTFrame(frameName,name,...)
 	mover:RegisterForDrag("LeftButton")
 	mover:SetScript("OnDragStart", mover.StartMoving)
 	mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
+	mover:SetScript("OnMouseDown",moverLock)
 	mover:SetMovable(true)
 	mover:EnableMouse(true)
 	local texture = mover:CreateTexture(nil, "BACKGROUND")
-	texture:SetColorTexture(1, 1, 0.0, 0.5)
+	texture:SetColorTexture(1, 1, 0, 0.5)
 	texture:SetAllPoints(true)
 	local text = mover:CreateFontString(nil,"ARTWORK","GameFontHighlightLarge")
 	text:SetPoint("CENTER", mover, "CENTER")
 	text:SetText(name)
-	mover:SetScript("OnMouseDown",moverLock)
 
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
-
 	frame:SetSpacing(3)
 	frame:SetMaxLines(20)
-	frame:SetSize(...)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
 	frame:SetJustifyH("CENTER")
+	frame:SetSize(...)
 	frame:SetAllPoints(mover)
 
 	C.mover[frame] = mover
@@ -175,33 +174,33 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
-	local toMine = destGUID == playerGUID or destGUID == vehicleGUID
+	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		-- amount, overkill, school, resisted, blocked, absorbed, critical
 		if fromMine then merge(false,5586,arg1,arg3,arg7) end
-		if toMine then DamageHealingString(true,5586,arg1,arg3,arg7,false) end
+		if toMe then DamageHealingString(true,5586,arg1,arg3,arg7,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		-- spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
-		if toMine then DamageHealingString(true,arg1,arg4,arg6,arg10,false)
+		if toMe then DamageHealingString(true,arg1,arg4,arg6,arg10,false)
 		elseif fromMine then merge(false,arg1,arg4,arg6,arg10) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		-- missType, isOffHand, amountMissed
 		if fromMe then MissString(false,5586,arg1) end
-		if toMine then MissString(true,5586,arg1) end
+		if toMe then MissString(true,5586,arg1) end
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then -- spell miss
 		-- spellId, spellName, spellSchool, missType, isOffHand, amountMissed
 		if fromMe then MissString(false,arg1,arg4) end
-		if toMine then MissString(true,arg1,arg4) end
+		if toMe then MissString(true,arg1,arg4) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
-		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical 
+		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 		if (arg1 == 143924 and not db.leech) or arg4 == arg5 then return end
 		if fromMine then merge(false,arg1,arg4,arg3,arg7)
-		elseif toMine then DamageHealingString(true,arg1,arg4,arg3,arg7,true) end
+		elseif toMe then DamageHealingString(true,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
-		if toMine then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
+		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
 	elseif db.info and fromMe then
-		-- spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType 
+		-- spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
 			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, arg5))
 		elseif Event == "SPELL_DISPEL" then -- player dispels

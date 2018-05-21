@@ -91,7 +91,7 @@ local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	_G[slider:GetName().."Text"]:SetText(name)
 	slider:SetValueStep(step)
 	slider.getfunc = get or function() return C.db[label] end
-	slider:SetScript("OnValueChanged", function(self,value)
+	slider:SetScript("OnValueChanged", function(_,value)
 		value = min + floor((value - min) / step + 0.5) * step
 		if set then set(value) else C.db[label]=value end
 		text:SetText(value)
