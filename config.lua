@@ -202,9 +202,9 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local lastOpt = button
 	for i=1, listLen do
 		local opt = CreateFrame("Button", nil, list)
-		opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT")
+		if i ==  1 then opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT", 4, -4) else opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT") end
 		lastOpt = opt
-		opt:SetSize(150,20)
+		opt:SetSize(150-8,20)
 		opt:SetBackdrop(optBackdrop)
 		opt:SetBackdropColor(0,0,0,0.5)
 		opt.text = opt:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -217,7 +217,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 
 		opts[i] = opt
 	end
-	list:SetSize(150, listLen*20)
+	list:SetSize(150, listLen*20+8)
 	SetListValue()
 	SetFramePoint(f,pos)
 	options.dropdown[label] = f
