@@ -109,39 +109,38 @@ local function newButton(name, desc, pos, func)
 	SetFramePoint(button,pos)
 end
 
-local backdrop = {
+local listBackdrop = {
 	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-	edgeSize = 3,
-	tileSize = 3,
+	edgeSize = 16,
+	tileSize = 16,
 	tile = true,
 	insets = {left = 3, right = 3, top = 3, bottom = 3},
 }
+local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
 local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local f = CreateFrame("Frame", nil, configFrame)
-	f:SetSize(150,20)
-	f:SetBackdrop(backdrop)
+	f:SetSize(150,25)
+	f:SetBackdrop(listBackdrop)
 	f:SetBackdropColor(0,0,0, 0.5)
-	f:SetBackdropBorderColor(0, 0, 0)
 	local opts = {}
 	f.offset = 0
 	local button = CreateFrame("Button", nil, f)
-	button:SetSize(150,20)
+	button:SetSize(150,25)
 	button:SetPoint("LEFT",f,"LEFT",0,0)
 	local list = CreateFrame("Frame",nil,f)
 	list:SetPoint("TOP",f,"BOTTOM")
-	list:SetBackdrop(backdrop)
+	list:SetBackdrop(listBackdrop)
 	list:SetBackdropColor(0,0,0,1)
-	list:SetBackdropBorderColor(0, 0, 0)
 	list:Hide()
 	local title = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	title:SetText(name)
 	title:SetPoint("TOPLEFT",f,"TOPLEFT",0,14)
-	local texture = button:CreateTexture(nil, "BACKGROUND")
-	texture:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
-	texture:SetPoint("RIGHT",button,"RIGHT")
-	texture:SetSize(20,20)
+	local downTexture = button:CreateTexture(nil, "BACKGROUND")
+	downTexture:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
+	downTexture:SetPoint("RIGHT",button,"RIGHT")
+	downTexture:SetSize(25,25)
 	local text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	local _,fontSize = text:GetFont()
 	text:SetPoint("LEFT",f,"LEFT",5,0)
@@ -206,7 +205,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT")
 		lastOpt = opt
 		opt:SetSize(150,20)
-		opt:SetBackdrop(backdrop)
+		opt:SetBackdrop(optBackdrop)
 		opt:SetBackdropColor(0,0,0,0.5)
 		opt.text = opt:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 		opt.text:SetPoint("LEFT",opt,"LEFT",5,0)
