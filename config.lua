@@ -120,15 +120,11 @@ local listBackdrop = {
 local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
 local function newDropdown(label, name, pos, tbl, get, set, isFont)
-	local f = CreateFrame("Frame", nil, configFrame)
+	local f = CreateFrame("Button", nil, configFrame)
 	f:SetSize(150,25)
 	f:SetBackdrop(listBackdrop)
-	f:SetBackdropColor(0,0,0, 0.5)
-	local opts = {}
+	f:SetBackdropColor(0,0,0,0)
 	f.offset = 0
-	local button = CreateFrame("Button", nil, f)
-	button:SetSize(150,25)
-	button:SetPoint("LEFT",f,"LEFT",0,0)
 	local list = CreateFrame("Frame",nil,f)
 	list:SetPoint("TOP",f,"BOTTOM")
 	list:SetBackdrop(listBackdrop)
@@ -137,14 +133,19 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local title = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	title:SetText(name)
 	title:SetPoint("TOPLEFT",f,"TOPLEFT",0,14)
-	local downTexture = button:CreateTexture(nil, "BACKGROUND")
+	local downTexture = f:CreateTexture(nil, "BACKGROUND")
 	downTexture:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
-	downTexture:SetPoint("RIGHT",button,"RIGHT")
+	downTexture:SetPoint("RIGHT",f,"RIGHT")
 	downTexture:SetSize(25,25)
 	local text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	local _,fontSize = text:GetFont()
 	text:SetPoint("LEFT",f,"LEFT",5,0)
+	f:SetScript("OnClick",function()
+		PlaySound(856)
+		ToggleFrame(list)
+	end)
 
+	local opts = {}
 	local function SetHighlight()
 		local offset, chosen = f.offset, f.chosen
 		for i, opt in ipairs(opts) do
@@ -163,10 +164,6 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		if isFont then text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 	end
 
-	button:SetScript("OnClick",function()
-		PlaySound(856)
-		ToggleFrame(list)
-	end)
 	local function OnClick(self)
 		PlaySound(856)
 		local chosen = self.value
@@ -191,19 +188,16 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local Len = #tbl
 	local listLen = min(Len,10)
 	local function OnMouseWheel(_,direction)
-		local offset = f.offset
-		offset = offset - direction
+		local offset = f.offset - direction
 		if offset < 0 then offset = 0
 		elseif offset > Len-10 then offset = max(Len-10, 0) end
 		f.offset = offset
 		SetHighlight()
 		SetListValue()
 	end
-	local lastOpt = button
 	for i=1, listLen do
 		local opt = CreateFrame("Button", nil, list)
-		if i ==  1 then opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT", 4, -4) else opt:SetPoint("TOPLEFT", lastOpt, "BOTTOMLEFT") end
-		lastOpt = opt
+		opt:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 4, -4-(i-1)*20)
 		opt:SetSize(150-8,20)
 		opt:SetBackdrop(optBackdrop)
 		opt:SetBackdropColor(0,0,0,0.5)
@@ -214,7 +208,6 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		opt:SetScript("OnLeave", OnLeave)
 		opt:EnableMouseWheel(true)
 		opt:SetScript("OnMouseWheel",OnMouseWheel)
-
 		opts[i] = opt
 	end
 	list:SetSize(150, listLen*20+8)
