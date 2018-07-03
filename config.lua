@@ -15,7 +15,6 @@ local defaults = {
 	},
 	showMyPet = true,
 	merge = true,
-	leech = false,
 	periodic = true,
 	info = false,
 	["in"] = true,
@@ -253,7 +252,6 @@ rct:AddInitFunc(function()
 			C.db.merge = checked
 			C:SetMerge()
 		end)
-	newCheckBox("leech", L["leech"], L["leechTooltip"], 1)
 	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 	newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
 	-- Set values in config

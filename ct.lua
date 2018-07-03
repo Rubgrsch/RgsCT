@@ -193,7 +193,7 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 		if toMe then MissString(true,arg1,arg4) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
-		if (arg1 == 143924 and not db.leech) or arg4 == arg5 then return end
+		if arg1 == 143924 or arg4 == arg5 then return end
 		if fromMine then merge(false,arg1,arg4,arg3,arg7)
 		elseif toMe then DamageHealingString(true,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
