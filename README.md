@@ -1,7 +1,5 @@
 # RgsCT
-A tiny combat text addon for WoW.  
-
-It also supports beta(8.0 BfA).  
+A tiny combat text addon for WoW 8.0.  
 
 https://www.curseforge.com/wow/addons/rgsct  
 
