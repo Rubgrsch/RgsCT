@@ -169,7 +169,8 @@ end
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
-local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10)
+local function parseCT()
+	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
 	local db = C.db
 	local vehicleGUID = UnitGUID("vehicle")
 	local fromMe = sourceGUID == playerGUID
@@ -212,7 +213,7 @@ local function parseCT(_,_,_, Event, _, sourceGUID, _, sourceFlags, _, destGUID,
 end
 
 local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", C.isBfA and function() parseCT(nil,nil,CombatLogGetCurrentEventInfo()) end or parseCT)
+eventFrame:SetScript("OnEvent", parseCT)
 
 local combatF = CreateFrame("Frame")
 combatF:RegisterEvent("PLAYER_REGEN_ENABLED")

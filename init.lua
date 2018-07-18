@@ -1,9 +1,8 @@
 local _, rct = ...
 rct[1] = {} -- Config
 rct[2] = {} -- Locales
-local C, L = unpack(rct)
+local _, L = unpack(rct)
 
-C.isBfA = strmatch((GetBuildInfo()),"^%d+") == "8"
 setmetatable(L, {__index=function(_, key) return key end})
 
 local init = {}
