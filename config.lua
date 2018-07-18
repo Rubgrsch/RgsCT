@@ -44,7 +44,6 @@ local options = {check={}, slider={}, dropdown={}}
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 configFrame.name = addonName
 InterfaceOptions_AddCategory(configFrame)
-local optionsPerLine = 3
 local idx, first, previous = 1, configFrame, configFrame
 
 local function SetFramePoint(frame, pos)
@@ -52,7 +51,7 @@ local function SetFramePoint(frame, pos)
 		frame:SetPoint(unpack(pos))
 		idx, first = 1, frame
 	else
-		if pos > 0 and idx <= optionsPerLine - pos then -- same line
+		if pos > 0 and idx <= 3 - pos then -- same line
 			frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
 			idx = idx + 1
 		else -- next line
@@ -64,14 +63,15 @@ local function SetFramePoint(frame, pos)
 end
 
 local function newCheckBox(label, name, desc, pos, get, set)
-	local check = CreateFrame("CheckButton", "RgsCTConfig"..label, configFrame, "InterfaceOptionsCheckButtonTemplate")
+	local Name = "RgsCTConfig"..label
+	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
 		if set then set(checked) else C.db[label] = checked end
 		PlaySound(checked and 856 or 857)
 	end)
 	check.getfunc = get or function() return C.db[label] end
-	_G[check:GetName().."Text"]:SetText(name)
+	_G[Name.."Text"]:SetText(name)
 	check.tooltipText = name
 	check.tooltipRequirement = desc
 	SetFramePoint(check, pos)
@@ -79,15 +79,16 @@ local function newCheckBox(label, name, desc, pos, get, set)
 end
 
 local function newSlider(label, name, desc, min, max, step, pos, get, set)
-	local slider = CreateFrame("Slider","RgsCTConfig"..label,configFrame,"OptionsSliderTemplate")
+	local Name = "RgsCTConfig"..label
+	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	text:SetPoint("BOTTOM",0,-10)
 	slider.tooltipText = name
 	slider.tooltipRequirement = desc
 	slider:SetMinMaxValues(min, max)
-	_G[slider:GetName().."Low"]:SetText(min)
-	_G[slider:GetName().."High"]:SetText(max)
-	_G[slider:GetName().."Text"]:SetText(name)
+	_G[Name.."Low"]:SetText(min)
+	_G[Name.."High"]:SetText(max)
+	_G[Name.."Text"]:SetText(name)
 	slider:SetValueStep(step)
 	slider.getfunc = get or function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(_,value)
