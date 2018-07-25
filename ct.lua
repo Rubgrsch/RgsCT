@@ -106,7 +106,7 @@ local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	if Hits and Hits > 1 then -- isIn == false
-		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",L["NumUnitFormat"](amount/Hits),Hits))
+		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isHealing and "+" or "",L["NumUnitFormat"](amount/Hits),Hits))
 	else
 		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isHealing and "+" or (isIn and "-" or ""),L["NumUnitFormat"](amount)))
 	end
