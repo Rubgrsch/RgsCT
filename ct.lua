@@ -167,6 +167,13 @@ function C:SetMerge()
 	end
 end
 
+local f = CreateFrame("Frame")
+f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+f:SetScript("OnEvent", function()
+	C.role = GetSpecializationRole(GetSpecialization())
+end)
+
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
@@ -196,8 +203,9 @@ local function parseCT()
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 		if arg1 == 143924 or arg4 == arg5 then return end
-		if fromMine then merge(false,arg1,arg4,arg3,arg7,true)
-		elseif toMe then DamageHealingString(true,arg1,arg4,arg3,arg7,true) end
+		if fromMine and C.role == "HEALER" then merge(false,arg1,arg4,arg3,arg7,true)
+		elseif toMe then DamageHealingString(true,arg1,arg4,arg3,arg7,true)
+		elseif fromMine then merge(false,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
