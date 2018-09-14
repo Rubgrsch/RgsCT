@@ -230,8 +230,7 @@ rct:AddInitFunc(function()
 			C.db.font = chosen
 			C:SetFrames()
 		end,true)
-	newSlider(
-		"fontSize", L["fontSize"], nil, 9, 30, 1, 1,
+	newSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
 		nil,
 		function(value)
 			C.db.fontSize = value
@@ -254,7 +253,7 @@ rct:AddInitFunc(function()
 			C:SetMerge()
 		end)
 	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
-	newCheckBox("periodic", LOG_PERIODIC_EFFECTS, L["periodicTooltip"], 1)
+	newCheckBox("periodic", L["periodic"], L["periodicTooltip"], 1)
 	-- Set values in config
 	for _,v in pairs(options.check) do
 		v:SetChecked(v.getfunc())

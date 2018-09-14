@@ -17,6 +17,7 @@ L["merge"] = "合併顯示AoE"
 L["mergeTooltip"] = "嘗試合併顯示多目標傷害與治療。"
 L["showMyPet"] = "顯示玩家寵物"
 L["showMyPetTooltip"] = "顯示玩家的寵物造成的傷害與治療。"
+L["periodic"] = "周期性效果" --<<
 L["periodicTooltip"] = "顯示周期性傷害與治療"
 L["showInfo"] = "顯示戰鬥訊息"
 L["showInfoTooltip"] = "顯示部分與你有關的戰鬥訊息，比如進入戰鬥、成功打斷。"
