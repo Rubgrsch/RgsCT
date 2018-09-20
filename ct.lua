@@ -105,10 +105,12 @@ local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
+	local frame = isIn and InFrame or OutFrame
+	local symbol = isHealing and "+" or (isIn and "-" or "")
 	if Hits and Hits > 1 then -- isIn == false
-		OutFrame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isHealing and "+" or "",L["NumUnitFormat"](amount/Hits),Hits))
+		frame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount/Hits),Hits))
 	else
-		(isIn and InFrame or OutFrame):AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",isHealing and "+" or (isIn and "-" or ""),L["NumUnitFormat"](amount)))
+		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount)))
 	end
 end
 
@@ -120,7 +122,8 @@ end
 local SpellSchool, SpellCrit, SpellIsHealing = {}, {}, {}
 local tCount, tAmount, tHits, tTime = 0, {}, {}, {}
 local merge
-local function mergeFunc(_,spellID,amount,school,critical,isHealing)
+local function mergeFunc(isIn,spellID,amount,school,critical,isHealing)
+	if isIn then spellID = - spellID end
 	SpellSchool[spellID] = school
 	SpellCrit[spellID] = critical
 	SpellIsHealing[spellID] = isHealing
@@ -141,7 +144,8 @@ timerFrame:SetScript("OnUpdate", function(_,elapsed)
 		for spellID,Time in pairs(tTime) do
 			Time = Time + elapsed
 			if Time > 0.05 then
-				DamageHealingString(false,spellID,tAmount[spellID],SpellSchool[spellID],SpellCrit[spellID],SpellIsHealing[spellID],tHits[spellID])
+				local isIn = spellID < 0
+				DamageHealingString(isIn,isIn and -spellID or spellID,tAmount[spellID],SpellSchool[spellID],SpellCrit[spellID],SpellIsHealing[spellID],tHits[spellID])
 				tAmount[spellID] = nil
 				tHits[spellID] = nil
 				tTime[spellID] = nil
@@ -170,9 +174,7 @@ end
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-f:SetScript("OnEvent", function()
-	C.role = GetSpecializationRole(GetSpecialization())
-end)
+f:SetScript("OnEvent", function() C.role = GetSpecializationRole(GetSpecialization()) end)
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
@@ -187,10 +189,10 @@ local function parseCT()
 	if Event == "SWING_DAMAGE" then -- melee
 		-- amount, overkill, school, resisted, blocked, absorbed, critical
 		if fromMine then merge(false,5586,arg1,arg3,arg7,false) end
-		if toMe then DamageHealingString(true,5586,arg1,arg3,arg7,false) end
+		if toMe then merge(true,5586,arg1,arg3,arg7,false) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		-- spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
-		if toMe then DamageHealingString(true,arg1,arg4,arg6,arg10,false)
+		if toMe then merge(true,arg1,arg4,arg6,arg10,false)
 		elseif fromMine then merge(false,arg1,arg4,arg6,arg10,false) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		-- missType, isOffHand, amountMissed
@@ -204,7 +206,7 @@ local function parseCT()
 		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 		if arg1 == 143924 or arg4 == arg5 then return end
 		if fromMine and C.role == "HEALER" then merge(false,arg1,arg4,arg3,arg7,true)
-		elseif toMe then DamageHealingString(true,arg1,arg4,arg3,arg7,true)
+		elseif toMe then merge(true,arg1,arg4,arg3,arg7,true)
 		elseif fromMine then merge(false,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
