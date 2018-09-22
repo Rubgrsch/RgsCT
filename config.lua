@@ -241,6 +241,7 @@ rct:AddInitFunc(function()
 			InterfaceOptionsFrame:Hide()
 			HideUIPanel(GameMenuFrame)
 			for _,mover in pairs(C.mover) do mover:Show() end
+			print(L["moverMsg"])
 		end)
 	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], -1)
 	newCheckBox("in", L["showIn"], L["showInTooltip"], 1,
