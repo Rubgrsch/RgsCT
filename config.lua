@@ -2,7 +2,7 @@ local addonName, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local floor, type, next, unpack, pairs, ipairs = math.floor, type, next, unpack, pairs, ipairs
+local type, next, unpack, pairs, ipairs = type, next, unpack, pairs, ipairs
 local PlaySound = PlaySound
 
 local defaults = {
@@ -90,9 +90,9 @@ local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	_G[Name.."High"]:SetText(max)
 	_G[Name.."Text"]:SetText(name)
 	slider:SetValueStep(step)
+	slider:SetObeyStepOnDrag(true)
 	slider.getfunc = get or function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(_,value)
-		value = min + floor((value - min) / step + 0.5) * step
 		if set then set(value) else C.db[label]=value end
 		text:SetText(value)
 	end)
