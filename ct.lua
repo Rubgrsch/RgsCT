@@ -5,8 +5,6 @@ local _G = _G
 local format, unpack, GetSpellTexture, UnitGUID, pairs = format, unpack, GetSpellTexture, UnitGUID, pairs
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
-local playerGUID
-
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
 	[1] = "ffff00",
@@ -171,18 +169,19 @@ function C:SetMerge()
 	end
 end
 
-local f = CreateFrame("Frame")
+local f, role = CreateFrame("Frame"), nil
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-f:SetScript("OnEvent", function() C.role = GetSpecializationRole(GetSpecialization()) end)
+f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization()) end)
 
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
-local function parseCT()
+local eventFrame = CreateFrame("Frame")
+eventFrame:SetScript("OnEvent", function()
 	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
 	local db = C.db
-	local vehicleGUID = UnitGUID("vehicle")
+	local vehicleGUID, playerGUID = UnitGUID("vehicle"), UnitGUID("player")
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
@@ -205,7 +204,7 @@ local function parseCT()
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 		if arg1 == 143924 or arg4 == arg5 then return end
-		if fromMine and C.role == "HEALER" then merge(false,arg1,arg4,arg3,arg7,true)
+		if fromMine and role == "HEALER" then merge(false,arg1,arg4,arg3,arg7,true)
 		elseif toMe then merge(true,arg1,arg4,arg3,arg7,true)
 		elseif fromMine then merge(false,arg1,arg4,arg3,arg7,true) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
@@ -221,10 +220,7 @@ local function parseCT()
 			InfoFrame:AddMessage(format(L["Stole"], destName, arg5))
 		end
 	end
-end
-
-local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", parseCT)
+end)
 
 local combatF = CreateFrame("Frame")
 combatF:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -239,7 +235,6 @@ combatF:SetScript("OnEvent", function(_,event)
 end)
 
 rct:AddInitFunc(function()
-	playerGUID = UnitGUID("player")
 	C:SetFrames()
 	C:SetMerge()
 	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
