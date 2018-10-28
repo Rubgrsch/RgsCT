@@ -2,8 +2,7 @@ local _, rct = ...
 local C, L = unpack(rct)
 
 local _G = _G
-local format, unpack, GetSpellTexture, UnitGUID, pairs = format, unpack, GetSpellTexture, UnitGUID, pairs
-local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
+local C_Timer_After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs = C_Timer.After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs
 
 -- Stolen from AbuCombattext, converted to hex
 local dmgcolor = {
@@ -105,7 +104,7 @@ local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
-	if Hits and Hits > 1 then -- isIn == false
+	if Hits and Hits > 1 then
 		frame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount/Hits),Hits))
 	else
 		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount)))
@@ -116,56 +115,29 @@ local function MissString(isIn,spellID,missType)
 	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
 end
 
--- Data for merging, for now it contains school/critical
-local SpellSchool, SpellCrit, SpellIsHealing = {}, {}, {}
-local tCount, tAmount, tHits, tTime = 0, {}, {}, {}
-local merge
-local function mergeFunc(isIn,spellID,amount,school,critical,isHealing)
-	if isIn then spellID = - spellID end
-	SpellSchool[spellID] = school
-	SpellCrit[spellID] = critical
-	SpellIsHealing[spellID] = isHealing
-	if tAmount[spellID] then
-		tAmount[spellID] = tAmount[spellID] + amount
-		tHits[spellID] = tHits[spellID] + 1
-	else
-		tAmount[spellID] = amount
-		tHits[spellID] = 1
-		tTime[spellID] = 0
-		tCount = tCount + 1
-	end
-end
+-- Merge --
+local dmgFunc
+local dmgIn, dmgOut = {}, {}
 
-local timerFrame = CreateFrame("Frame")
-timerFrame:SetScript("OnUpdate", function(_,elapsed)
-	if tCount > 0 then
-		for spellID,Time in pairs(tTime) do
-			Time = Time + elapsed
-			if Time > 0.05 then
-				local isIn = spellID < 0
-				DamageHealingString(isIn,isIn and -spellID or spellID,tAmount[spellID],SpellSchool[spellID],SpellCrit[spellID],SpellIsHealing[spellID],tHits[spellID])
-				tAmount[spellID] = nil
-				tHits[spellID] = nil
-				tTime[spellID] = nil
-				tCount = tCount - 1
-			else
-				tTime[spellID] = Time
-			end
+local function dmgMerge(isIn,spellID,amount,school,critical,isHealing)
+	local tbl = isIn and dmgIn or dmgOut
+	if not tbl[spellID] then
+		tbl[spellID] = {0,school,0,0,0}
+		tbl[spellID].func = function()
+			DamageHealingString(isIn,spellID,unpack(tbl))
+			tbl[1], tbl[5] = 0, 0
 		end
 	end
-end)
+	tbl = tbl[spellID]
+	tbl[1], tbl[3], tbl[4], tbl[5] = tbl[1] + amount, critical, isHealing, tbl[5] + 1
+	if tbl[5] == 1 then C_Timer_After(0.05,tbl.func) end
+end
 
 function C:SetMerge()
 	if self.db.merge then
-		merge = mergeFunc
-		timerFrame:Show()
+		merge = dmgMerge
 	else
-		tAmount = {}
-		tHits = {}
-		tTime = {}
-		tCount = 0
 		merge = DamageHealingString
-		timerFrame:Hide()
 	end
 end
 
