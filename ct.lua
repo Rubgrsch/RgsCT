@@ -116,7 +116,7 @@ local function MissString(isIn,spellID,missType)
 end
 
 -- Merge --
-local dmgFunc
+local merge
 local dmgIn, dmgOut = {}, {}
 
 local function dmgMerge(isIn,spellID,amount,school,critical,isHealing)
