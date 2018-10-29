@@ -63,7 +63,7 @@ local function SetFramePoint(frame, pos)
 end
 
 local function newCheckBox(label, name, desc, pos, get, set)
-	local Name = "RgsCTConfig"..label
+	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
@@ -79,7 +79,7 @@ local function newCheckBox(label, name, desc, pos, get, set)
 end
 
 local function newSlider(label, name, desc, min, max, step, pos, get, set)
-	local Name = "RgsCTConfig"..label
+	local Name = addonName.."Config"..label
 	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	text:SetPoint("BOTTOM",0,-10)
