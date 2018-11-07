@@ -20,18 +20,17 @@ local defaults = {
 	["in"] = true,
 }
 
+local function copyTable(source,dest)
+	for k,v in pairs(source) do
+		if dest[k] == nil then dest[k] = v end
+		if type(v) == "table" then copyTable(v,dest[k]) end
+	end
+end
+
 rct:AddInitFunc(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
-	-- fallback to defaults
-	for k,v in pairs(defaults) do
-		if C.db[k] == nil then C.db[k] = v end
-		if type(v) == "table" then
-			for k1,v1 in pairs(v) do
-				if C.db[k][k1] == nil then C.db[k][k1] = v1 end
-			end
-		end
-	end
+	copyTable(defaults,C.db)
 	-- Start of DB Conversion
 	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
