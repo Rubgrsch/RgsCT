@@ -101,7 +101,7 @@ local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
 local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 
-local function DamageHealingString(isIn,spellID,amount,school,isCritical,isHealing,Hits)
+local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritical,Hits)
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
 	if Hits and Hits > 1 then
@@ -117,28 +117,27 @@ end
 
 -- Merge --
 local merge
-local dmgIn, dmgOut = {}, {}
+local mergeData = {
+	[true] = {[true] = {}, [false] = {}},
+	[false] = {[true] = {}, [false] = {}},
+}
 
-local function dmgMerge(isIn,spellID,amount,school,critical,isHealing)
-	local tbl = isIn and dmgIn or dmgOut
+local function dmgMerge(isIn,isHealing,spellID,amount,school,critical)
+	local tbl = mergeData[isIn][isHealing]
 	if not tbl[spellID] then
-		tbl[spellID] = {0,school,0,0,0}
+		tbl[spellID] = {0,school,0,0}
 		tbl[spellID].func = function()
-			DamageHealingString(isIn,spellID,unpack(tbl))
-			tbl[1], tbl[5] = 0, 0
+			DamageHealingString(isIn,isHealing,spellID,unpack(tbl))
+			tbl[1], tbl[4] = 0, 0
 		end
 	end
 	tbl = tbl[spellID]
-	tbl[1], tbl[3], tbl[4], tbl[5] = tbl[1] + amount, critical, isHealing, tbl[5] + 1
-	if tbl[5] == 1 then C_Timer_After(0.05,tbl.func) end
+	tbl[1], tbl[3], tbl[4] = tbl[1] + amount, critical, tbl[4] + 1
+	if tbl[4] == 1 then C_Timer_After(0.05,tbl.func) end
 end
 
 function C:SetMerge()
-	if self.db.merge then
-		merge = dmgMerge
-	else
-		merge = DamageHealingString
-	end
+	merge = self.db.merge and dmgMerge or DamageHealingString
 end
 
 local f, role = CreateFrame("Frame"), nil
@@ -159,12 +158,12 @@ eventFrame:SetScript("OnEvent", function()
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then -- melee
 		-- amount, overkill, school, resisted, blocked, absorbed, critical
-		if fromMine then merge(false,5586,arg1,arg3,arg7,false) end
-		if toMe then merge(true,5586,arg1,arg3,arg7,false) end
+		if fromMine then merge(false,false,5586,arg1,arg3,arg7) end
+		if toMe then merge(true,false,5586,arg1,arg3,arg7) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
 		-- spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
-		if toMe then merge(true,arg1,arg4,arg6,arg10,false)
-		elseif fromMine then merge(false,arg1,arg4,arg6,arg10,false) end
+		if toMe then merge(true,false,arg1,arg4,arg6,arg10)
+		elseif fromMine then merge(false,false,arg1,arg4,arg6,arg10) end
 	elseif Event == "SWING_MISSED" then -- melee miss
 		-- missType, isOffHand, amountMissed
 		if fromMe then MissString(false,5586,arg1) end
@@ -176,9 +175,9 @@ eventFrame:SetScript("OnEvent", function()
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
 		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 		if arg1 == 143924 or arg4 == arg5 then return end
-		if fromMine and role == "HEALER" then merge(false,arg1,arg4,arg3,arg7,true)
-		elseif toMe then merge(true,arg1,arg4,arg3,arg7,true)
-		elseif fromMine then merge(false,arg1,arg4,arg3,arg7,true) end
+		if fromMine and role == "HEALER" then merge(false,true,arg1,arg4,arg3,arg7)
+		elseif toMe then merge(true,true,arg1,arg4,arg3,arg7)
+		elseif fromMine then merge(false,true,arg1,arg4,arg3,arg7) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
 		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
