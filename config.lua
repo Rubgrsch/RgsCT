@@ -6,18 +6,19 @@ local type, next, unpack, pairs, ipairs = type, next, unpack, pairs, ipairs
 local PlaySound = PlaySound
 
 local defaults = {
-	fontSize = 14,
-	font = LibStub("LibSharedMedia-3.0"):List("font")[1],
-	mover = {
+	["fontSize"] = 14,
+	["font"] = LibStub("LibSharedMedia-3.0"):List("font")[1],
+	["mover"] = {
 		RgsCTIn = {"CENTER",-300,0},
 		RgsCTOut = {"CENTER",300,0},
 		RgsCTInfo = {"CENTER",0,0},
 	},
-	showMyPet = true,
-	merge = true,
-	periodic = true,
-	info = false,
+	["showMyPet"] = true,
+	["merge"] = true,
+	["periodic"] = true,
+	["info"] = false,
 	["in"] = true,
+	["out"] = true,
 }
 
 local function copyTable(source,dest)
@@ -242,10 +243,13 @@ rct:AddInitFunc(function()
 			for _,mover in pairs(C.mover) do mover:Show() end
 			print(L["moverMsg"])
 		end)
-	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], -1)
+	newCheckBox("out", L["showOut"], L["showOutTooltip"], 1,
+		nil,
+		function(checked) if checked then RgsCTOut:Show() else RgsCTOut:Hide() end; C.db["out"] = checked end)
 	newCheckBox("in", L["showIn"], L["showInTooltip"], 1,
 		nil,
 		function(checked) if checked then RgsCTIn:Show() else RgsCTIn:Hide() end; C.db["in"] = checked end)
+	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
 	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
 		nil,
 		function(checked)
