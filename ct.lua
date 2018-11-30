@@ -89,6 +89,10 @@ local function CreateCTFrame(frameName,name,...)
 	return frame
 end
 
+local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
+local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
+local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
+
 function C:SetFrames()
 	for frame,mover in pairs(self.mover) do
 		frame:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize, "OUTLINE")
@@ -97,10 +101,7 @@ function C:SetFrames()
 	end
 end
 
-local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
-local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
-local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
-
+-- CT functions
 local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritical,Hits)
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
@@ -140,11 +141,13 @@ function C:SetMerge()
 	merge = self.db.merge and dmgMerge or DamageHealingString
 end
 
+-- Role check
 local f, role = CreateFrame("Frame"), nil
 f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization()) end)
 
+-- CLEU
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
@@ -156,33 +159,34 @@ eventFrame:SetScript("OnEvent", function()
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
-	if Event == "SWING_DAMAGE" then -- melee
-		-- amount, overkill, school, resisted, blocked, absorbed, critical
+	-- melee | amount, overkill, school, resisted, blocked, absorbed, critical
+	if Event == "SWING_DAMAGE" then
 		if fromMine then merge(false,false,5586,arg1,arg3,arg7) end
 		if toMe then merge(true,false,5586,arg1,arg3,arg7) end
-	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then -- spell damage
-		-- spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
+	-- spell damage | spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
+	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then
 		if toMe then merge(true,false,arg1,arg4,arg6,arg10)
 		elseif fromMine then merge(false,false,arg1,arg4,arg6,arg10) end
-	elseif Event == "SWING_MISSED" then -- melee miss
-		-- missType, isOffHand, amountMissed
+	-- melee miss | missType, isOffHand, amountMissed
+	elseif Event == "SWING_MISSED" then
 		if fromMe then MissString(false,5586,arg1) end
 		if toMe then MissString(true,5586,arg1) end
-	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then -- spell miss
-		-- spellId, spellName, spellSchool, missType, isOffHand, amountMissed
+	-- spell miss | spellId, spellName, spellSchool, missType, isOffHand, amountMissed
+	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then
 		if fromMe then MissString(false,arg1,arg4) end
 		if toMe then MissString(true,arg1,arg4) end
-	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then -- Healing
-		-- spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
+	-- Healing | spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
+	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
 		if arg1 == 143924 or arg4 == arg5 then return end
+		-- Show healing in OutFrame for healers, InFrame for tank/dps
 		if fromMine and role == "HEALER" then merge(false,true,arg1,arg4,arg3,arg7)
 		elseif toMe then merge(true,true,arg1,arg4,arg3,arg7)
 		elseif fromMine then merge(false,true,arg1,arg4,arg3,arg7) end
-	elseif Event == "ENVIRONMENTAL_DAMAGE" then -- environmental damage
-		-- environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
+	-- environmental damage | environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
+	elseif Event == "ENVIRONMENTAL_DAMAGE" then
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
+	-- spell info | spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType
 	elseif db.info and fromMe then
-		-- spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType
 		if Event == "SPELL_INTERRUPT" then -- player interrupts
 			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, arg5))
 		elseif Event == "SPELL_DISPEL" then -- player dispels

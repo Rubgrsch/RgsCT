@@ -137,9 +137,9 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	downTexture:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Down")
 	downTexture:SetPoint("RIGHT",f,"RIGHT")
 	downTexture:SetSize(25,25)
-	local text = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	local _,fontSize = text:GetFont()
-	text:SetPoint("LEFT",f,"LEFT",5,0)
+	local selectedText = f:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	local _,fontSize = selectedText:GetFont()
+	selectedText:SetPoint("LEFT",f,"LEFT",5,0)
 	f:SetScript("OnClick",function()
 		PlaySound(856)
 		ToggleFrame(list)
@@ -160,8 +160,8 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		local chosen = get and get() or C.db[label]
 		f.chosen = chosen
 		SetHighlight()
-		text:SetText(chosen)
-		if isFont then text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		selectedText:SetText(chosen)
+		if isFont then selectedText:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 	end
 
 	local function OnClick(self)
@@ -169,9 +169,9 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		local chosen = self.value
 		f.chosen = chosen
 		SetHighlight()
-		text:SetText(chosen)
+		selectedText:SetText(chosen)
 		if set then set(chosen) else C.db[label] = chosen end
-		if isFont then text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		if isFont then selectedText:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
 		list:Hide()
 	end
 	local function OnEnter(self) if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end end
