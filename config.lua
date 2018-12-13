@@ -32,12 +32,11 @@ rct:AddInitFunc(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
 	copyTable(defaults,C.db)
-	-- Start of DB Conversion
-	-- End of DB conversion
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
 end)
 
 -- GUI Template --
+C.mover = {}
 -- Table for DB initialize
 local options = {check={}, slider={}, dropdown={}}
 
@@ -188,10 +187,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	local Len = #tbl
 	local listLen = min(Len,10)
 	local function OnMouseWheel(_,direction)
-		local offset = f.offset - direction
-		if offset < 0 then offset = 0
-		elseif offset > Len-10 then offset = max(Len-10, 0) end
-		f.offset = offset
+		f.offset = max(min(Len-10, f.offset - direction),0)
 		SetHighlight()
 		SetListValue()
 	end
@@ -216,8 +212,6 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 	options.dropdown[label] = f
 end
 -- End of GUI template --
-
-C.mover = {}
 
 local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
 titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
