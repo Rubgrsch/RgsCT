@@ -112,8 +112,13 @@ local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritic
 	end
 end
 
-local function MissString(isIn,spellID,missType)
-	(isIn and InFrame or OutFrame):AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
+local function MissString(isIn,spellID,missType,amountMissed)
+	local frame = isIn and InFrame or OutFrame
+	if missType == "ABSORB" then
+		frame:AddMessage(format("|T%s:0:0:0:-5|t%s(%s)",GetSpellTexture(spellID) or "",_G[missType],L["NumUnitFormat"](amountMissed)))
+	else
+		frame:AddMessage(format("|T%s:0:0:0:-5|t%s",GetSpellTexture(spellID) or "",_G[missType]))
+	end
 end
 
 -- Merge --
@@ -169,12 +174,12 @@ eventFrame:SetScript("OnEvent", function()
 		elseif fromMine then merge(false,false,arg1,arg4,arg6,arg10) end
 	-- melee miss | missType, isOffHand, amountMissed
 	elseif Event == "SWING_MISSED" then
-		if fromMe then MissString(false,5586,arg1) end
-		if toMe then MissString(true,5586,arg1) end
+		if fromMe then MissString(false,5586,arg1,arg3) end
+		if toMe then MissString(true,5586,arg1,arg3) end
 	-- spell miss | spellId, spellName, spellSchool, missType, isOffHand, amountMissed
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then
-		if fromMe then MissString(false,arg1,arg4) end
-		if toMe then MissString(true,arg1,arg4) end
+		if fromMe then MissString(false,arg1,arg4,arg6) end
+		if toMe then MissString(true,arg1,arg4,arg6) end
 	-- Healing | spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
 		if arg1 == 143924 or arg4 == arg5 then return end
