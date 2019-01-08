@@ -4,10 +4,11 @@ local C, L = unpack(rct)
 local _G = _G
 local type, next, unpack, pairs, ipairs = type, next, unpack, pairs, ipairs
 local PlaySound = PlaySound
+local LSM = LibStub("LibSharedMedia-3.0")
 
 local defaults = {
 	["fontSize"] = 14,
-	["font"] = LibStub("LibSharedMedia-3.0"):List("font")[1],
+	["font"] = LSM:List("font")[1],
 	["mover"] = {
 		RgsCTIn = {"CENTER",-300,0},
 		RgsCTOut = {"CENTER",300,0},
@@ -160,7 +161,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		f.chosen = chosen
 		SetHighlight()
 		selectedText:SetText(chosen)
-		if isFont then selectedText:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize) end
 	end
 
 	local function OnClick(self)
@@ -170,7 +171,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		SetHighlight()
 		selectedText:SetText(chosen)
 		if set then set(chosen) else C.db[label] = chosen end
-		if isFont then selectedText:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",chosen),fontSize) end
+		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize) end
 		list:Hide()
 	end
 	local function OnEnter(self) if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end end
@@ -181,7 +182,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 			local value = tbl[i+offset]
 			opt.value = value
 			opt.text:SetText(value)
-			if isFont then opt.text:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",value),fontSize) end
+			if isFont then opt.text:SetFont(LSM:Fetch("font",value),fontSize) end
 		end
 	end
 	local Len = #tbl
@@ -218,7 +219,7 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 rct:AddInitFunc(function()
-	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LibStub("LibSharedMedia-3.0"):List("font"),
+	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
 		nil,
 		function(chosen)
 			C.db.font = chosen

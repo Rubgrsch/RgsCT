@@ -94,8 +94,9 @@ local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
 
 function C:SetFrames()
+	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
 	for frame,mover in pairs(self.mover) do
-		frame:SetFont(LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize, "OUTLINE")
+		frame:SetFont(font, fontSize, "OUTLINE")
 		mover:ClearAllPoints()
 		mover:SetPoint(unpack(self.db.mover[frame:GetName()]))
 	end
