@@ -39,6 +39,7 @@ local dmgcolor = {
 	[33] = "bfbf7f",
 	[17] = "bfff7f",
 }
+setmetatable(dmgcolor,{__index=function() return "ffffff" end})
 
 local environmentalTypeText = {
 	Drowning = ACTION_ENVIRONMENTAL_DAMAGE_DROWNING,
@@ -107,9 +108,9 @@ local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritic
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
 	if Hits and Hits > 1 then
-		frame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount/Hits),Hits))
+		frame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school],symbol,L["NumUnitFormat"](amount/Hits),Hits))
 	else
-		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school] or "ffffff",symbol,L["NumUnitFormat"](amount)))
+		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school],symbol,L["NumUnitFormat"](amount)))
 	end
 end
 
@@ -156,6 +157,7 @@ f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization
 -- CLEU
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
+local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = true}
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:SetScript("OnEvent", function()
@@ -190,16 +192,10 @@ eventFrame:SetScript("OnEvent", function()
 		elseif fromMine then merge(false,true,arg1,arg4,arg3,arg7) end
 	-- environmental damage | environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then
-		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4] or "ffffff",environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
+		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4],environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
 	-- spell info | spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType
-	elseif db.info and fromMe then
-		if Event == "SPELL_INTERRUPT" then -- player interrupts
-			InfoFrame:AddMessage(format(L["InterruptedSpell"], destName, arg5))
-		elseif Event == "SPELL_DISPEL" then -- player dispels
-			InfoFrame:AddMessage(format(L["Dispeled"], destName, arg5))
-		elseif Event == "SPELL_STOLEN" then -- player stolen
-			InfoFrame:AddMessage(format(L["Stole"], destName, arg5))
-		end
+	elseif db.info and fromMe and spellInfo[Event] then
+		InfoFrame:AddMessage(format(L[Event], destName, arg5))
 	end
 end)
 
