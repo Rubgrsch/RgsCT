@@ -109,7 +109,7 @@ local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritic
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
 	if Hits and Hits > 1 then
-		frame:AddMessage(format("|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school],symbol,L["NumUnitFormat"](amount/Hits),Hits))
+		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s* x%d|r" or "|T%s:0:0:0:-5|t|cff%s%s%s x%d|r",GetSpellTexture(spellID) or "",dmgcolor[school],symbol,L["NumUnitFormat"](amount/Hits),Hits))
 	else
 		frame:AddMessage(format(isCritical and "|T%s:0:0:0:-5|t|cff%s%s*%s*|r" or "|T%s:0:0:0:-5|t|cff%s%s%s|r",GetSpellTexture(spellID) or "",dmgcolor[school],symbol,L["NumUnitFormat"](amount)))
 	end
@@ -136,12 +136,13 @@ local function dmgMerge(isIn,isHealing,spellID,amount,school,critical)
 	if not tbl[spellID] then
 		tbl[spellID] = {0,school,0,0}
 		tbl[spellID].func = function()
-			DamageHealingString(isIn,isHealing,spellID,unpack(tbl))
-			tbl[1], tbl[4] = 0, 0
+			local tbl = tbl
+			DamageHealingString(isIn,isHealing,spellID,tbl[1],tbl[2],tbl[3]==tbl[4],tbl[4])
+			tbl[1], tbl[3], tbl[4] = 0, 0, 0
 		end
 	end
 	tbl = tbl[spellID]
-	tbl[1], tbl[3], tbl[4] = tbl[1] + amount, critical, tbl[4] + 1
+	tbl[1], tbl[3], tbl[4] = tbl[1] + amount, tbl[3] + (critical and 1 or 0), tbl[4] + 1
 	if tbl[4] == 1 then C_Timer_After(0.05,tbl.func) end
 end
 
