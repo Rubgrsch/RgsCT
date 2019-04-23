@@ -50,6 +50,7 @@ local environmentalTypeText = {
 	Slime = ACTION_ENVIRONMENTAL_DAMAGE_SLIME,
 }
 
+-- Mover
 local function moverLock(_,button)
 	if button == "RightButton" then
 		for f,m in pairs(C.mover) do
@@ -154,7 +155,7 @@ f:RegisterEvent("PLAYER_LOGIN")
 f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization()) end)
 
--- CLEU
+-- CLEU: https://wow.gamepedia.com/COMBAT_LOG_EVENT
 local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = true}
@@ -167,33 +168,28 @@ eventFrame:SetScript("OnEvent", function()
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
-	-- melee | amount, overkill, school, resisted, blocked, absorbed, critical
 	if Event == "SWING_DAMAGE" then
 		if fromMine then merge(false,false,5586,arg1,arg3,arg7) end
 		if toMe then merge(true,false,5586,arg1,arg3,arg7) end
-	-- spell damage | spellId, spellName, spellSchool, amount, overkill, school, resisted, blocked, absorbed, critical
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then
 		if toMe then merge(true,false,arg1,arg4,arg6,arg10)
+		-- use elseif to block self damage, e.g. stagger
 		elseif fromMine then merge(false,false,arg1,arg4,arg6,arg10) end
-	-- melee miss | missType, isOffHand, amountMissed
 	elseif Event == "SWING_MISSED" then
 		if fromMe then MissString(false,5586,arg1,arg3) end
 		if toMe then MissString(true,5586,arg1,arg3) end
-	-- spell miss | spellId, spellName, spellSchool, missType, isOffHand, amountMissed
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then
 		if fromMe then MissString(false,arg1,arg4,arg6) end
 		if toMe then MissString(true,arg1,arg4,arg6) end
-	-- Healing | spellId, spellName, spellSchool, amount, overhealing, absorbed, critical
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
+		-- block leech and full-overhealing
 		if arg1 == 143924 or arg4 == arg5 then return end
 		-- Show healing in OutFrame for healers, InFrame for tank/dps
 		if fromMine and role == "HEALER" then merge(false,true,arg1,arg4,arg3,arg7)
 		elseif toMe then merge(true,true,arg1,arg4,arg3,arg7)
 		elseif fromMine then merge(false,true,arg1,arg4,arg3,arg7) end
-	-- environmental damage | environmentalType, amount, overkill, school, resisted, blocked, absorbed, critical
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4],environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
-	-- spell info | spellId, spellName, spellSchool, extraSpellId, extraSpellName, extraSchool, auraType
 	elseif db.info and fromMe and spellInfo[Event] then
 		InfoFrame:AddMessage(format(L[Event], destName, arg5))
 	end
