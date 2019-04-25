@@ -1,9 +1,9 @@
 # RgsCT
-A tiny combat text addon for WoW 8.1.  
+A tiny combat text addon for WoW 8.1.5.  
 
 https://www.curseforge.com/wow/addons/rgsct  
 
-This addon provides necessary combat infomation with low usage.  
+This addon provides necessary combat feedback with low usage.  
 It shows following infomation:
 - Damage
 - Healing
@@ -18,7 +18,9 @@ Options are available via GUI.
 Thanks
 ------
 
-**siweia**, EK, Sticklord  
+Coding: siweia  
+Spell schools colors: Sticklord  
+Translation: EK(zhTW)  
 
 License
 -------
