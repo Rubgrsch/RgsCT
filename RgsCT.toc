@@ -1,6 +1,6 @@
 ## Interface: 80100
 ## Title: RgsCT
-## Version: v1.1.2
+## Version: v1.1.3
 ## Author: Rubgrsch
 ## SavedVariables: rgsctDB
 
