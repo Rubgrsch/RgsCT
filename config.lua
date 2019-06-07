@@ -62,7 +62,7 @@ local function SetFramePoint(frame, pos)
 	previous = frame
 end
 
-local function newCheckBox(label, name, desc, pos, get, set)
+local function newCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnClick", function(self)
@@ -70,7 +70,7 @@ local function newCheckBox(label, name, desc, pos, get, set)
 		if set then set(checked) else C.db[label] = checked end
 		PlaySound(checked and 856 or 857)
 	end)
-	check.getfunc = get or function() return C.db[label] end
+	check.getfunc = function() return C.db[label] end
 	_G[Name.."Text"]:SetText(name)
 	check.tooltipText = name
 	check.tooltipRequirement = desc
@@ -78,7 +78,7 @@ local function newCheckBox(label, name, desc, pos, get, set)
 	options.check[label] = check
 end
 
-local function newSlider(label, name, desc, min, max, step, pos, get, set)
+local function newSlider(label, name, desc, min, max, step, pos, set)
 	local Name = addonName.."Config"..label
 	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -91,7 +91,7 @@ local function newSlider(label, name, desc, min, max, step, pos, get, set)
 	_G[Name.."Text"]:SetText(name)
 	slider:SetValueStep(step)
 	slider:SetObeyStepOnDrag(true)
-	slider.getfunc = get or function() return C.db[label] end
+	slider.getfunc = function() return C.db[label] end
 	slider:SetScript("OnValueChanged", function(_,value)
 		if set then set(value) else C.db[label]=value end
 		text:SetText(value)
@@ -119,7 +119,7 @@ local listBackdrop = {
 }
 local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
-local function newDropdown(label, name, pos, tbl, get, set, isFont)
+local function newDropdown(label, name, pos, tbl, set, isFont)
 	local f = CreateFrame("Button", nil, configFrame)
 	f:SetSize(150,25)
 	f:SetBackdrop(listBackdrop)
@@ -157,7 +157,7 @@ local function newDropdown(label, name, pos, tbl, get, set, isFont)
 		end
 	end
 	function f:Init()
-		local chosen = get and get() or C.db[label]
+		local chosen = C.db[label]
 		f.chosen = chosen
 		SetHighlight()
 		selectedText:SetText(chosen)
@@ -220,13 +220,11 @@ titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 rct:AddInitFunc(function()
 	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
-		nil,
 		function(chosen)
 			C.db.font = chosen
 			C:SetFrames()
 		end,true)
 	newSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
-		nil,
 		function(value)
 			C.db.fontSize = value
 			C:SetFrames()
@@ -239,14 +237,11 @@ rct:AddInitFunc(function()
 			print(L["moverMsg"])
 		end)
 	newCheckBox("out", L["showOut"], L["showOutTooltip"], 1,
-		nil,
 		function(checked) if checked then RgsCTOut:Show() else RgsCTOut:Hide() end; C.db["out"] = checked end)
 	newCheckBox("in", L["showIn"], L["showInTooltip"], 1,
-		nil,
 		function(checked) if checked then RgsCTIn:Show() else RgsCTIn:Hide() end; C.db["in"] = checked end)
 	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
 	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
-		nil,
 		function(checked)
 			C.db.merge = checked
 			C:SetMerge()
