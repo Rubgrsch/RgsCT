@@ -1,5 +1,5 @@
 # RgsCT
-A tiny combat text addon for WoW 8.1.5.  
+A tiny combat text addon for WoW 8.2.  
 
 https://www.curseforge.com/wow/addons/rgsct  
 
@@ -14,6 +14,10 @@ It shows following infomation:
 Options are available via GUI.  
 
 [ChangeLog](https://github.com/Rubgrsch/RgsCT/wiki/ChangeLog)
+
+This addon will not officially support classic WoW.  
+
+You can send feedback via Github, Curse or ElvUI discord.  
 
 Thanks
 ------
