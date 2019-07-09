@@ -51,6 +51,7 @@ local environmentalTypeText = {
 }
 
 -- Mover
+C.mover = {}
 local function moverLock(_,button)
 	if button == "RightButton" then
 		for f,m in pairs(C.mover) do
@@ -105,7 +106,7 @@ function C:SetFrames()
 end
 
 -- CT functions
-local function DamageHealingString(isIn,isHealing,spellID,amount,school,isCritical,Hits)
+local function DmgString(isIn,isHealing,spellID,amount,school,isCritical,Hits)
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
 	if Hits and Hits > 1 then
@@ -125,19 +126,19 @@ local function MissString(isIn,spellID,missType,amountMissed)
 end
 
 -- Merge --
-local merge
+local DmgFunc
 local mergeData = {
 	[true] = {[true] = {}, [false] = {}},
 	[false] = {[true] = {}, [false] = {}},
 }
 
-local function dmgMerge(isIn,isHealing,spellID,amount,school,critical)
+local function DmgMerge(isIn,isHealing,spellID,amount,school,critical)
 	local tbl = mergeData[isIn][isHealing]
 	if not tbl[spellID] then
 		tbl[spellID] = {0,school,0,0}
 		tbl[spellID].func = function()
 			local tbl = tbl
-			DamageHealingString(isIn,isHealing,spellID,tbl[1],tbl[2],tbl[3]==tbl[4],tbl[4])
+			DmgString(isIn,isHealing,spellID,tbl[1],tbl[2],tbl[3]==tbl[4],tbl[4])
 			tbl[1], tbl[3], tbl[4] = 0, 0, 0
 		end
 	end
@@ -147,7 +148,7 @@ local function dmgMerge(isIn,isHealing,spellID,amount,school,critical)
 end
 
 function C:SetMerge()
-	merge = self.db.merge and dmgMerge or DamageHealingString
+	DmgFunc = self.db.merge and DmgMerge or DmgString
 end
 
 -- Role check
@@ -161,8 +162,8 @@ local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT
 local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = true}
 
-local eventFrame = CreateFrame("Frame")
-eventFrame:SetScript("OnEvent", function()
+local CLEUFrame = CreateFrame("Frame")
+CLEUFrame:SetScript("OnEvent", function()
 	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
 	local db = C.db
 	local vehicleGUID, playerGUID = UnitGUID("vehicle"), UnitGUID("player")
@@ -170,12 +171,12 @@ eventFrame:SetScript("OnEvent", function()
 	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then
-		if fromMine then merge(false,false,5586,arg1,arg3,arg7) end
-		if toMe then merge(true,false,5586,arg1,arg3,arg7) end
+		if fromMine then DmgFunc(false,false,5586,arg1,arg3,arg7) end
+		if toMe then DmgFunc(true,false,5586,arg1,arg3,arg7) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then
-		if toMe then merge(true,false,arg1,arg4,arg6,arg10)
+		if toMe then DmgFunc(true,false,arg1,arg4,arg6,arg10)
 		-- use elseif to block self damage, e.g. stagger
-		elseif fromMine then merge(false,false,arg1,arg4,arg6,arg10) end
+		elseif fromMine then DmgFunc(false,false,arg1,arg4,arg6,arg10) end
 	elseif Event == "SWING_MISSED" then
 		if fromMe then MissString(false,5586,arg1,arg3) end
 		if toMe then MissString(true,5586,arg1,arg3) end
@@ -186,9 +187,9 @@ eventFrame:SetScript("OnEvent", function()
 		-- block leech and full-overhealing
 		if arg1 == 143924 or arg4 == arg5 then return end
 		-- Show healing in OutFrame for healers, InFrame for tank/dps
-		if fromMine and role == "HEALER" then merge(false,true,arg1,arg4,arg3,arg7)
-		elseif toMe then merge(true,true,arg1,arg4,arg3,arg7)
-		elseif fromMine then merge(false,true,arg1,arg4,arg3,arg7) end
+		if fromMine and role == "HEALER" then DmgFunc(false,true,arg1,arg4,arg3,arg7)
+		elseif toMe then DmgFunc(true,true,arg1,arg4,arg3,arg7)
+		elseif fromMine then DmgFunc(false,true,arg1,arg4,arg3,arg7) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4],environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
 	elseif db.info and fromMe and spellInfo[Event] then
@@ -211,5 +212,5 @@ end)
 rct:AddInitFunc(function()
 	C:SetFrames()
 	C:SetMerge()
-	eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end)

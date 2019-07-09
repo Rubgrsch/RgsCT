@@ -37,7 +37,6 @@ rct:AddInitFunc(function()
 end)
 
 -- GUI Template --
-C.mover = {}
 -- Table for DB initialize
 local options = {check={}, slider={}, dropdown={}}
 
