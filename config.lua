@@ -37,9 +37,6 @@ rct:AddInitFunc(function()
 end)
 
 -- GUI Template --
--- Table for DB initialize
-local options = {check={}, slider={}, dropdown={}}
-
 local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 configFrame.name = addonName
 InterfaceOptions_AddCategory(configFrame)
@@ -64,17 +61,16 @@ end
 local function newCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
+	check:SetScript("OnShow", function(self) self:SetChecked(C.db[label]) end)
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
 		if set then set(checked) else C.db[label] = checked end
 		PlaySound(checked and 856 or 857)
 	end)
-	check.getfunc = function() return C.db[label] end
 	_G[Name.."Text"]:SetText(name)
 	check.tooltipText = name
 	check.tooltipRequirement = desc
 	SetFramePoint(check, pos)
-	options.check[label] = check
 end
 
 local function newSlider(label, name, desc, min, max, step, pos, set)
@@ -90,13 +86,12 @@ local function newSlider(label, name, desc, min, max, step, pos, set)
 	_G[Name.."Text"]:SetText(name)
 	slider:SetValueStep(step)
 	slider:SetObeyStepOnDrag(true)
-	slider.getfunc = function() return C.db[label] end
+	slider:SetScript("OnShow", function(self) self:SetValue(C.db[label],true) end)
 	slider:SetScript("OnValueChanged", function(_,value)
 		if set then set(value) else C.db[label]=value end
 		text:SetText(value)
 	end)
 	SetFramePoint(slider, pos)
-	options.slider[label] = slider
 end
 
 local function newButton(name, desc, pos, func)
@@ -155,13 +150,13 @@ local function newDropdown(label, name, pos, tbl, set, isFont)
 			end
 		end
 	end
-	function f:Init()
+	f:SetScript("OnShow", function(self)
 		local chosen = C.db[label]
-		f.chosen = chosen
+		self.chosen = chosen
 		SetHighlight()
 		selectedText:SetText(chosen)
 		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize) end
-	end
+	end)
 
 	local function OnClick(self)
 		PlaySound(856)
@@ -209,7 +204,6 @@ local function newDropdown(label, name, pos, tbl, set, isFont)
 	list:SetSize(150, listLen*20+8)
 	SetListValue()
 	SetFramePoint(f,pos)
-	options.dropdown[label] = f
 end
 -- End of GUI template --
 
@@ -247,14 +241,4 @@ rct:AddInitFunc(function()
 		end)
 	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
 	newCheckBox("periodic", L["periodic"], L["periodicTooltip"], 1)
-	-- Set values in config
-	for _,v in pairs(options.check) do
-		v:SetChecked(v.getfunc())
-	end
-	for _,v in pairs(options.slider) do
-		v:SetValue(v.getfunc(),true)
-	end
-	for _,v in pairs(options.dropdown) do
-		v:Init()
-	end
 end)
