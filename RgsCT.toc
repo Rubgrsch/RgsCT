@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80205
 ## Title: RgsCT
 ## Version: v1.1.5
 ## Author: Rubgrsch
