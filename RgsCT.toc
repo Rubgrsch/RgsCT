@@ -1,6 +1,6 @@
 ## Interface: 80205
 ## Title: RgsCT
-## Version: v1.1.5
+## Version: v1.1.6
 ## Author: Rubgrsch
 ## SavedVariables: rgsctDB
 
