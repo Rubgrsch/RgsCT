@@ -158,9 +158,10 @@ f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization()) end)
 
 -- CLEU: https://wow.gamepedia.com/COMBAT_LOG_EVENT
-local MY_PET_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_PET)
-local MY_GUARDIAN_FLAGS = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE, COMBATLOG_OBJECT_REACTION_FRIENDLY, COMBATLOG_OBJECT_CONTROL_PLAYER, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = true}
+local mask_mine_friendly_player = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MASK,COMBATLOG_OBJECT_REACTION_MASK,COMBATLOG_OBJECT_CONTROL_MASK)
+local flag_mine_friendly_player = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE,COMBATLOG_OBJECT_REACTION_FRIENDLY,COMBATLOG_OBJECT_CONTROL_PLAYER)
+local flag_pet_guardian = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
 local CLEUFrame = CreateFrame("Frame")
 CLEUFrame:SetScript("OnEvent", function()
@@ -168,7 +169,7 @@ CLEUFrame:SetScript("OnEvent", function()
 	local db = C.db
 	local vehicleGUID, playerGUID = UnitGUID("vehicle"), UnitGUID("player")
 	local fromMe = sourceGUID == playerGUID
-	local fromMine = fromMe or (db.showMyPet and (sourceFlags == MY_PET_FLAGS or sourceFlags == MY_GUARDIAN_FLAGS)) or sourceGUID == vehicleGUID
+	local fromMine = fromMe or (db.showMyPet and (bit.bxor(bit.band(sourceFlags, mask_mine_friendly_player), flag_mine_friendly_player) == 0 and bit.band(sourceFlags, flag_pet_guardian) > 0)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then
 		if fromMine then DmgFunc(false,false,5586,arg1,arg3,arg7) end
