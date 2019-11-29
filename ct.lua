@@ -170,7 +170,7 @@ CLEUFrame:SetScript("OnEvent", function()
 	local db = C.db
 	local vehicleGUID, playerGUID = UnitGUID("vehicle"), UnitGUID("player")
 	local fromMe = sourceGUID == playerGUID
-	local fromMine = fromMe or (db.showMyPet and (band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player) and band(sourceFlags, flag_pet_guardian) > 0)) or sourceGUID == vehicleGUID
+	local fromMine = fromMe or (db.showMyPet and band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player and band(sourceFlags, flag_pet_guardian) > 0) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then
 		if fromMine then DmgFunc(false,false,5586,arg1,arg3,arg7) end
