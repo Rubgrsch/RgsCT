@@ -52,7 +52,7 @@ local environmentalTypeText = {
 
 -- Mover
 C.mover = {}
-local function moverLock(_,button)
+local function MoverLock(_,button)
 	if button == "RightButton" then
 		for f,m in pairs(C.mover) do
 			m:Hide()
@@ -68,7 +68,7 @@ local function CreateCTFrame(frameName,name,...)
 	mover:RegisterForDrag("LeftButton")
 	mover:SetScript("OnDragStart", mover.StartMoving)
 	mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
-	mover:SetScript("OnMouseDown",moverLock)
+	mover:SetScript("OnMouseDown",MoverLock)
 	mover:SetMovable(true)
 	mover:EnableMouse(true)
 	local texture = mover:CreateTexture(nil, "BACKGROUND")

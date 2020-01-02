@@ -58,7 +58,7 @@ local function SetFramePoint(frame, pos)
 	previous = frame
 end
 
-local function newCheckBox(label, name, desc, pos, set)
+local function NewCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
 	check:SetScript("OnShow", function(self) self:SetChecked(C.db[label]) end)
@@ -73,7 +73,7 @@ local function newCheckBox(label, name, desc, pos, set)
 	SetFramePoint(check, pos)
 end
 
-local function newSlider(label, name, desc, min, max, step, pos, set)
+local function NewSlider(label, name, desc, min, max, step, pos, set)
 	local Name = addonName.."Config"..label
 	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -94,7 +94,7 @@ local function newSlider(label, name, desc, min, max, step, pos, set)
 	SetFramePoint(slider, pos)
 end
 
-local function newButton(name, desc, pos, func)
+local function NewButton(name, desc, pos, func)
 	local button = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
 	button:SetText(name)
 	button.tooltipText = desc
@@ -113,7 +113,7 @@ local listBackdrop = {
 }
 local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
-local function newDropdown(label, name, pos, tbl, set, isFont)
+local function NewDropdown(label, name, pos, tbl, set, isFont)
 	local f = CreateFrame("Button", nil, configFrame)
 	f:SetSize(150,25)
 	f:SetBackdrop(listBackdrop)
@@ -212,33 +212,33 @@ titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
 rct:AddInitFunc(function()
-	newDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
+	NewDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
 			C:SetFrames()
 		end,true)
-	newSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
+	NewSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
 		function(value)
 			C.db.fontSize = value
 			C:SetFrames()
 		end)
-	newButton(L["mover"], L["moverTooltip"], 1,
+	NewButton(L["mover"], L["moverTooltip"], 1,
 		function()
 			InterfaceOptionsFrame:Hide()
 			HideUIPanel(GameMenuFrame)
 			for _,mover in pairs(C.mover) do mover:Show() end
 			print(L["moverMsg"])
 		end)
-	newCheckBox("out", L["showOut"], L["showOutTooltip"], 1,
+	NewCheckBox("out", L["showOut"], L["showOutTooltip"], 1,
 		function(checked) if checked then RgsCTOut:Show() else RgsCTOut:Hide() end; C.db["out"] = checked end)
-	newCheckBox("in", L["showIn"], L["showInTooltip"], 1,
+	NewCheckBox("in", L["showIn"], L["showInTooltip"], 1,
 		function(checked) if checked then RgsCTIn:Show() else RgsCTIn:Hide() end; C.db["in"] = checked end)
-	newCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
-	newCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
+	NewCheckBox("info", L["showInfo"], L["showInfoTooltip"], 1)
+	NewCheckBox("merge", L["merge"], L["mergeTooltip"], -1,
 		function(checked)
 			C.db.merge = checked
 			C:SetMerge()
 		end)
-	newCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
-	newCheckBox("periodic", L["periodic"], L["periodicTooltip"], 1)
+	NewCheckBox("showMyPet", L["showMyPet"], L["showMyPetTooltip"], 1)
+	NewCheckBox("periodic", L["periodic"], L["periodicTooltip"], 1)
 end)
