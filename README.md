@@ -1,5 +1,5 @@
 # RgsCT
-A tiny combat text addon for WoW 8.2.5.  
+A tiny combat text addon for World of Warcraft.  
 
 https://www.curseforge.com/wow/addons/rgsct  
 
