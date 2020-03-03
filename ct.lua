@@ -195,7 +195,7 @@ CLEUFrame:SetScript("OnEvent", function()
 		elseif fromMine then DmgFunc(false,true,arg1,arg4,arg3,arg7) end
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4],environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
-	elseif db.info and fromMe and spellInfo[Event] then
+	elseif db.info and fromMine and spellInfo[Event] then
 		InfoFrame:AddMessage(format(L[Event], destName, arg5))
 	end
 end)
