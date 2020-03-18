@@ -45,13 +45,18 @@ local idx, first, previous = 1, configFrame, configFrame
 local function SetFramePoint(frame, pos)
 	if type(pos) == "table" then -- Set custom position
 		frame:SetPoint(unpack(pos))
-		idx, first = 1, frame
+		idx, first, previous = 1, frame, frame
 	else
-		if pos > 0 and idx <= 3 - pos then -- same line
-			frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
-			idx = idx + 1
-		else -- next line
-			frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
+		if pos > 0 then
+			if idx <= 3 - pos then -- same line
+				frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
+				idx = idx + pos
+			else -- nextline
+				frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
+				idx, first = 1, frame
+			end
+		else -- next line, offset definded by |pos|
+			frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, 40 * pos)
 			idx, first = 1, frame
 		end
 	end
