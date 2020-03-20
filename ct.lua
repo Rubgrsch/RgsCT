@@ -185,7 +185,7 @@ CLEUFrame:SetScript("OnEvent", function()
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then
 		if toMe then MissString(true,arg1,arg4,arg6)
 		-- use elseif to block self damage, e.g. stagger
-		elseif fromMe then MissString(false,arg1,arg4,arg6) end
+		elseif fromMine then MissString(false,arg1,arg4,arg6) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
 		-- block leech and full-overhealing
 		if arg1 == 143924 or arg4 == arg5 then return end
