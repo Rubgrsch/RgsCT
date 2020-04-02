@@ -1,5 +1,5 @@
 local addonName, rct = ...
-local C, L = unpack(rct)
+local B, L, C = unpack(rct)
 
 local _G = _G
 local type, next, unpack, pairs, ipairs = type, next, unpack, pairs, ipairs
@@ -29,7 +29,7 @@ local function copyTable(source,dest)
 	end
 end
 
-rct:AddInitFunc(function()
+B:AddInitScript(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
 	copyTable(defaults,C.db)
@@ -216,7 +216,7 @@ local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarg
 titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
 titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
 
-rct:AddInitFunc(function()
+B:AddInitScript(function()
 	NewDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen

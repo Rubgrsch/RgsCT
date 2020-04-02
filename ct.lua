@@ -1,5 +1,5 @@
 local _, rct = ...
-local C, L = unpack(rct)
+local B, L, C = unpack(rct)
 
 local _G = _G
 local band, C_Timer_After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs = bit.band, C_Timer.After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs
@@ -152,10 +152,10 @@ function C:SetMerge()
 end
 
 -- Role check
-local f, role = CreateFrame("Frame"), nil
-f:RegisterEvent("PLAYER_LOGIN")
-f:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-f:SetScript("OnEvent", function() role = GetSpecializationRole(GetSpecialization()) end)
+local role = nil
+local function RoleCheck() role = GetSpecializationRole(GetSpecialization()) end
+B:AddEventScript("PLAYER_LOGIN", RoleCheck)
+B:AddEventScript("PLAYER_SPECIALIZATION_CHANGED", RoleCheck)
 
 local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = true}
 -- Bit thingy for player's pets or guardians. Necessary since target/focus gives additional bits to flags.
@@ -200,19 +200,18 @@ CLEUFrame:SetScript("OnEvent", function()
 	end
 end)
 
-local combatF = CreateFrame("Frame")
-combatF:RegisterEvent("PLAYER_REGEN_ENABLED")
-combatF:RegisterEvent("PLAYER_REGEN_DISABLED")
-combatF:SetScript("OnEvent", function(_,event)
+local function PlayerRegenChanged(_, event)
 	if not C.db.info then return end
 	if event == "PLAYER_REGEN_ENABLED" then
 		InfoFrame:AddMessage(LEAVING_COMBAT,0,1,0)
 	else
 		InfoFrame:AddMessage(ENTERING_COMBAT,1,0,0)
 	end
-end)
+end
+B:AddEventScript("PLAYER_REGEN_ENABLED", PlayerRegenChanged)
+B:AddEventScript("PLAYER_REGEN_DISABLED", PlayerRegenChanged)
 
-rct:AddInitFunc(function()
+B:AddInitScript(function()
 	C:SetFrames()
 	C:SetMerge()
 	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
