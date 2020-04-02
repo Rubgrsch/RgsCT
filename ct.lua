@@ -165,10 +165,10 @@ local flag_pet_guardian = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TY
 
 -- CLEU: https://wow.gamepedia.com/COMBAT_LOG_EVENT
 local CLEUFrame = CreateFrame("Frame")
-CLEUFrame:SetScript("OnEvent", function()
+CLEUFrame:SetScript("OnEvent", function(self)
 	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
 	local db = C.db
-	local vehicleGUID, playerGUID = UnitGUID("vehicle"), UnitGUID("player")
+	local vehicleGUID, playerGUID = self.vehicleGUID, self.playerGUID
 	local fromMe = sourceGUID == playerGUID
 	local fromMine = fromMe or (db.showMyPet and band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player and band(sourceFlags, flag_pet_guardian) > 0) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
@@ -199,6 +199,9 @@ CLEUFrame:SetScript("OnEvent", function()
 		InfoFrame:AddMessage(format(L[Event], destName, arg5))
 	end
 end)
+local function vehicleChanged(self, event, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
+B:AddEventScript("UNIT_ENTERED_VEHICLE", vehicleChanged)
+B:AddEventScript("UNIT_EXITING_VEHICLE", vehicleChanged)
 
 local function PlayerRegenChanged(_, event)
 	if not C.db.info then return end
@@ -214,5 +217,6 @@ B:AddEventScript("PLAYER_REGEN_DISABLED", PlayerRegenChanged)
 B:AddInitScript(function()
 	C:SetFrames()
 	C:SetMerge()
+	CLEUFrame.playerGUID = UnitGUID("player")
 	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 end)
