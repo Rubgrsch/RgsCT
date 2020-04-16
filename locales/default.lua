@@ -26,9 +26,9 @@ L["showIn"] = "Show Incoming"
 L["showInTooltip"] = "Show damage/healing taken."
 L["showInfo"] = "Combat Info"
 L["showInfoTooltip"] = "Show some of your combat info, e.g. combat/interrupted"
-L["SPELL_INTERRUPT"] = "Interrupted %s's [%s]"
-L["SPELL_DISPEL"] = "Dispeled %s's [%s]"
-L["SPELL_STOLEN"] = "Stole %s's [%s]"
+L["SPELL_INTERRUPT"] = "Interrupted [%s]"
+L["SPELL_DISPEL"] = "Dispeled [%s]"
+L["SPELL_STOLEN"] = "Stole [%s]"
 L["NumUnitFormat"] = function(value)
 	if value > 1e9 then
 		return format("%.1fB",value/1e9)

@@ -166,7 +166,7 @@ local flag_pet_guardian = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TY
 -- CLEU: https://wow.gamepedia.com/COMBAT_LOG_EVENT
 local CLEUFrame = CreateFrame("Frame")
 CLEUFrame:SetScript("OnEvent", function(self)
-	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, destName, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
+	local _, Event, _, sourceGUID, _, sourceFlags, _, destGUID, _, _, _, arg1, arg2, arg3, arg4, arg5, arg6, arg7, _, _, arg10 = CombatLogGetCurrentEventInfo()
 	local db = C.db
 	local vehicleGUID, playerGUID = self.vehicleGUID, self.playerGUID
 	local fromMe = sourceGUID == playerGUID
@@ -196,7 +196,7 @@ CLEUFrame:SetScript("OnEvent", function(self)
 	elseif Event == "ENVIRONMENTAL_DAMAGE" then
 		if toMe then InFrame:AddMessage(format("|cff%s%s-%s|r",dmgcolor[arg4],environmentalTypeText[arg1],L["NumUnitFormat"](arg2))) end
 	elseif db.info and fromMine and spellInfo[Event] then
-		InfoFrame:AddMessage(format(L[Event], destName, arg5))
+		InfoFrame:AddMessage(format(L[Event], arg5))
 	end
 end)
 local function vehicleChanged(self, event, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end

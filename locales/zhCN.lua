@@ -26,9 +26,9 @@ L["showIn"] = "显示承受"
 L["showInTooltip"] = "显示受到的伤害/治疗。"
 L["showInfo"] = "显示战斗信息"
 L["showInfoTooltip"] = "显示部分与你有关的战斗信息，比如进入战斗/成功打断。"
-L["SPELL_INTERRUPT"] = "已打断%s的[%s]"
-L["SPELL_DISPEL"] = "已驱散%s的[%s]"
-L["SPELL_STOLEN"] = "已偷取%s的[%s]"
+L["SPELL_INTERRUPT"] = "已打断[%s]"
+L["SPELL_DISPEL"] = "已驱散[%s]"
+L["SPELL_STOLEN"] = "已偷取[%s]"
 L["NumUnitFormat"] = function(value)
 	if value > 1e8 then
 		return format("%.1f亿",value/1e8)
