@@ -61,10 +61,10 @@ local function MoverLock(_,button)
 	end
 end
 
-local function CreateCTFrame(frameName,name,...)
+local function CreateCTFrame(frameName,name,frameWidth,moverWidth,height)
 	local mover = CreateFrame("Frame", nil, UIParent)
 	mover:Hide()
-	mover:SetSize(...)
+	mover:SetSize(moverWidth,height)
 	mover:RegisterForDrag("LeftButton")
 	mover:SetScript("OnDragStart", mover.StartMoving)
 	mover:SetScript("OnDragStop", mover.StopMovingOrSizing)
@@ -84,17 +84,17 @@ local function CreateCTFrame(frameName,name,...)
 	frame:SetFadeDuration(0.2)
 	frame:SetTimeVisible(3)
 	frame:SetJustifyH("CENTER")
-	frame:SetSize(...)
-	frame:SetAllPoints(mover)
+	frame:SetSize(frameWidth,height)
+	frame:SetPoint("CENTER", mover)
 
 	C.mover[frame] = mover
 
 	return frame
 end
 
-local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],120,150)
-local InFrame = CreateCTFrame("RgsCTIn",L["In"],120,150)
-local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],400,80)
+local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],600,120,150)
+local InFrame = CreateCTFrame("RgsCTIn",L["In"],600,120,150)
+local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],800,400,80)
 
 function C:SetFrames()
 	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
