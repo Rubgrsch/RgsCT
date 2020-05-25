@@ -92,8 +92,8 @@ local function CreateCTFrame(frameName,name,frameWidth,moverWidth,height)
 	return frame
 end
 
-local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],600,120,150)
-local InFrame = CreateCTFrame("RgsCTIn",L["In"],600,120,150)
+local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],600,120,200)
+local InFrame = CreateCTFrame("RgsCTIn",L["In"],600,120,200)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],800,400,80)
 
 function C:SetFrames()
