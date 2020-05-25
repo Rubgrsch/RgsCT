@@ -106,6 +106,11 @@ function C:SetFrames()
 end
 
 -- CT functions
+local blacklist = {
+	[201633] = true, -- Earthen Wall
+	[143924] = true, -- Leech
+}
+
 local function DmgString(isIn,isHealing,spellID,amount,school,isCritical,Hits)
 	local frame = isIn and InFrame or OutFrame
 	local symbol = isHealing and "+" or (isIn and "-" or "")
@@ -176,6 +181,7 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		if fromMine then DmgFunc(false,false,5586,arg1,arg3,arg7) end
 		if toMe then DmgFunc(true,false,5586,arg1,arg3,arg7) end
 	elseif (Event == "SPELL_DAMAGE" or Event == "RANGE_DAMAGE") or (db.periodic and Event == "SPELL_PERIODIC_DAMAGE") then
+		if blacklist[arg1] then return end
 		if toMe then DmgFunc(true,false,arg1,arg4,arg6,arg10)
 		-- use elseif to block self damage, e.g. stagger
 		elseif fromMine then DmgFunc(false,false,arg1,arg4,arg6,arg10) end
@@ -183,12 +189,13 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		if fromMe then MissString(false,5586,arg1,arg3) end
 		if toMe then MissString(true,5586,arg1,arg3) end
 	elseif (Event == "SPELL_MISSED" or Event == "RANGE_MISSED") then
+		if blacklist[arg1] then return end
 		if toMe then MissString(true,arg1,arg4,arg6)
 		-- use elseif to block self damage, e.g. stagger
 		elseif fromMine then MissString(false,arg1,arg4,arg6) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
-		-- block leech and full-overhealing
-		if arg1 == 143924 or arg4 == arg5 then return end
+		-- block full-overhealing
+		if blacklist[arg1] or arg4 == arg5 then return end
 		-- Show healing in OutFrame for healers, InFrame for tank/dps
 		if fromMine and role == "HEALER" then DmgFunc(false,true,arg1,arg4,arg3,arg7)
 		elseif toMe then DmgFunc(true,true,arg1,arg4,arg3,arg7)
