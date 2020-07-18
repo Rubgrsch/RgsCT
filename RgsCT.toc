@@ -1,4 +1,4 @@
-## Interface: 80300
+## Interface: 90001
 ## Title: RgsCT
 ## Version: v1.2.4
 ## Author: Rubgrsch

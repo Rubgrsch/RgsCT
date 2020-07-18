@@ -119,12 +119,12 @@ local listBackdrop = {
 local optBackdrop = {bgFile = "Interface\\ChatFrame\\ChatFrameBackground"}
 
 local function NewDropdown(label, name, pos, tbl, set, isFont)
-	local f = CreateFrame("Button", nil, configFrame)
+	local f = CreateFrame("Button", nil, configFrame, rct.isSL and "BackdropTemplate" or nil)
 	f:SetSize(150,25)
 	f:SetBackdrop(listBackdrop)
 	f:SetBackdropColor(0,0,0,0)
 	f.offset = 0
-	local list = CreateFrame("Frame",nil,f)
+	local list = CreateFrame("Button", nil, f, rct.isSL and "BackdropTemplate" or nil)
 	list:SetPoint("TOP",f,"BOTTOM")
 	list:SetBackdrop(listBackdrop)
 	list:SetBackdropColor(0,0,0,1)
@@ -192,7 +192,7 @@ local function NewDropdown(label, name, pos, tbl, set, isFont)
 		SetListValue()
 	end
 	for i=1, listLen do
-		local opt = CreateFrame("Button", nil, list)
+		local opt = CreateFrame("Button", nil, list, rct.isSL and "BackdropTemplate" or nil)
 		opt:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 4, -4-(i-1)*20)
 		opt:SetSize(150-8,20)
 		opt:SetBackdrop(optBackdrop)
