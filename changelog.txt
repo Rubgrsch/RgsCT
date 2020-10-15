@@ -5,6 +5,10 @@ o Change
 # Optimize
 * Fix
 
+------------ v1.2.5 [2020.07.20] ------------
+
++ Add support for ShadowLands
+
 ------------ v1.2.4 [2020.05.31] ------------
 
 o Increase CT frame height to 200

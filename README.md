@@ -13,7 +13,7 @@ It shows following infomation:
 
 Options are available via GUI.  
 
-[ChangeLog](https://github.com/Rubgrsch/RgsCT/wiki/ChangeLog)
+[ChangeLog](https://github.com/Rubgrsch/RgsCT/blob/master/changelog.txt)
 
 This addon will not officially support classic WoW.  
 

@@ -2,7 +2,6 @@ local _, rct = ...
 rct[1] = {} -- Base
 rct[2] = {} -- Locales
 rct[3] = {} -- Config
-rct.isSL = strmatch((GetBuildInfo()),"^%d+") == "9"
 local B, L = unpack(rct)
 
 setmetatable(L, {__index=function(_, key) return key end})
