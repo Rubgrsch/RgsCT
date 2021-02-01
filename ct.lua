@@ -175,7 +175,9 @@ CLEUFrame:SetScript("OnEvent", function(self)
 	local db = C.db
 	local vehicleGUID, playerGUID = self.vehicleGUID, self.playerGUID
 	local fromMe = sourceGUID == playerGUID
-	local fromMine = fromMe or (db.showMyPet and band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player and band(sourceFlags, flag_pet_guardian) > 0) or sourceGUID == vehicleGUID
+	local fromPet = band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player and band(sourceFlags, COMBATLOG_OBJECT_TYPE_PET) > 0
+	local fromGuardian = band(sourceFlags, mask_mine_friendly_player) == flag_mine_friendly_player and band(sourceFlags, COMBATLOG_OBJECT_TYPE_GUARDIAN) > 0
+	local fromMine = fromMe or (db.showMyPet and (fromPet or fromGuardian)) or sourceGUID == vehicleGUID
 	local toMe = destGUID == playerGUID or destGUID == vehicleGUID
 	if Event == "SWING_DAMAGE" then
 		if fromMine then DmgFunc(false,false,5586,arg1,arg3,arg7) end
@@ -192,7 +194,8 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		if blacklist[arg1] then return end
 		if toMe then MissString(true,arg1,arg4,arg6)
 		-- use elseif to block self damage, e.g. stagger
-		elseif fromMine then MissString(false,arg1,arg4,arg6) end
+		-- also block guardians miss for shamman
+		elseif fromMe or (db.showMyPet and fromPet) or sourceGUID == vehicleGUID then MissString(false,arg1,arg4,arg6) end
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
 		-- block full-overhealing
 		if blacklist[arg1] or arg4 == arg5 then return end
@@ -206,7 +209,7 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		InfoFrame:AddMessage(format(L[Event], arg5))
 	end
 end)
-local function vehicleChanged(self, event, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
+local function vehicleChanged(_, _, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
 B:AddEventScript("UNIT_ENTERED_VEHICLE", vehicleChanged)
 B:AddEventScript("UNIT_EXITING_VEHICLE", vehicleChanged)
 
