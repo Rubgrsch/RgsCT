@@ -49,7 +49,7 @@ local function SetFramePoint(frame, pos)
 	else
 		if pos > 0 then
 			if idx <= 3 - pos then -- same line
-				frame:SetPoint("LEFT", previous, "LEFT", 170, 0)
+				frame:SetPoint("LEFT", previous, "LEFT", 185, 0)
 				idx = idx + pos
 			else -- nextline
 				frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
@@ -213,8 +213,11 @@ end
 -- End of GUI template --
 
 local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
-titleText:SetPoint("TOPLEFT", configFrame, "TOPLEFT", 200, -20)
-titleText:SetText(addonName.." "..GetAddOnMetadata(addonName, "Version"))
+titleText:SetPoint("TOP", configFrame, "TOPLEFT", 275, -16)
+titleText:SetText(addonName)
+local versionText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormal")
+versionText:SetPoint("TOPRIGHT", configFrame, "TOPRIGHT", -8, -8)
+versionText:SetText(GetAddOnMetadata(addonName, "Version"))
 
 B:AddInitScript(function()
 	NewDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
