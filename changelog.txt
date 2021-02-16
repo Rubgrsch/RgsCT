@@ -5,6 +5,10 @@ o Change
 # Optimize
 * Fix
 
+------------ v1.2.6 [2021.02.16] ------------
+
+o Hide spell missed info for guardians
+
 ------------ v1.2.5 [2020.07.20] ------------
 
 + Add support for ShadowLands
