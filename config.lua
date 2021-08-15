@@ -22,17 +22,17 @@ local defaults = {
 	["out"] = true,
 }
 
-local function copyTable(source,dest)
+local function CopyTable(source,dest)
 	for k,v in pairs(source) do
 		if dest[k] == nil then dest[k] = v end
-		if type(v) == "table" then copyTable(v,dest[k]) end
+		if type(v) == "table" then CopyTable(v,dest[k]) end
 	end
 end
 
 B:AddInitScript(function()
 	if type(rgsctDB) ~= "table" or next(rgsctDB) == nil then rgsctDB = defaults end
 	C.db = rgsctDB
-	copyTable(defaults,C.db)
+	CopyTable(defaults,C.db)
 	for k in pairs(C.db) do if defaults[k] == nil then C.db[k] = nil end end -- remove old keys
 end)
 
@@ -223,12 +223,12 @@ B:AddInitScript(function()
 	NewDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
 		function(chosen)
 			C.db.font = chosen
-			C:SetFrames()
+			C:SetFont()
 		end,true)
 	NewSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
 		function(value)
 			C.db.fontSize = value
-			C:SetFrames()
+			C:SetFont()
 		end)
 	NewButton(L["mover"], L["moverTooltip"], 1,
 		function()

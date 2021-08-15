@@ -96,7 +96,7 @@ local OutFrame = CreateCTFrame("RgsCTOut",L["Out"],600,120,200)
 local InFrame = CreateCTFrame("RgsCTIn",L["In"],600,120,200)
 local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],800,400,80)
 
-function C:SetFrames()
+function C:SetFont()
 	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
 	for frame,mover in pairs(self.mover) do
 		frame:SetFont(font, fontSize, "OUTLINE")
@@ -166,7 +166,6 @@ local spellInfo = {SPELL_INTERRUPT = true, SPELL_DISPEL = true, SPELL_STOLEN = t
 -- Bit thingy for player's pets or guardians. Necessary since target/focus gives additional bits to flags.
 local mask_mine_friendly_player = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MASK,COMBATLOG_OBJECT_REACTION_MASK,COMBATLOG_OBJECT_CONTROL_MASK)
 local flag_mine_friendly_player = bit.bor(COMBATLOG_OBJECT_AFFILIATION_MINE,COMBATLOG_OBJECT_REACTION_FRIENDLY,COMBATLOG_OBJECT_CONTROL_PLAYER)
-local flag_pet_guardian = bit.bor(COMBATLOG_OBJECT_TYPE_PET, COMBATLOG_OBJECT_TYPE_GUARDIAN)
 
 -- CLEU: https://wow.gamepedia.com/COMBAT_LOG_EVENT
 local CLEUFrame = CreateFrame("Frame")
@@ -209,9 +208,9 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		InfoFrame:AddMessage(format(L[Event], arg5))
 	end
 end)
-local function vehicleChanged(_, _, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
-B:AddEventScript("UNIT_ENTERED_VEHICLE", vehicleChanged)
-B:AddEventScript("UNIT_EXITING_VEHICLE", vehicleChanged)
+local function VehicleChanged(_, _, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
+B:AddEventScript("UNIT_ENTERED_VEHICLE", VehicleChanged)
+B:AddEventScript("UNIT_EXITING_VEHICLE", VehicleChanged)
 
 local function PlayerRegenChanged(_, event)
 	if not C.db.info then return end
@@ -225,11 +224,11 @@ B:AddEventScript("PLAYER_REGEN_ENABLED", PlayerRegenChanged)
 B:AddEventScript("PLAYER_REGEN_DISABLED", PlayerRegenChanged)
 
 B:AddInitScript(function()
-	C:SetFrames()
+	C:SetFont()
 	C:SetMerge()
 	CLEUFrame.playerGUID = UnitGUID("player")
 	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	-- show/hide ct frame
-	if C.db["out"] then RgsCTOut:Show() else RgsCTOut:Hide() end
-	if C.db["in"] then RgsCTIn:Show() else RgsCTIn:Hide() end
+	if C.db["out"] then OutFrame:Show() else OutFrame:Hide() end
+	if C.db["in"] then InFrame:Show() else InFrame:Hide() end
 end)
