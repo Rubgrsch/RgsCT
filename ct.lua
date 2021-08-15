@@ -229,4 +229,7 @@ B:AddInitScript(function()
 	C:SetMerge()
 	CLEUFrame.playerGUID = UnitGUID("player")
 	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	-- show/hide ct frame
+	if C.db["out"] then RgsCTOut:Show() else RgsCTOut:Hide() end
+	if C.db["in"] then RgsCTIn:Show() else RgsCTIn:Hide() end
 end)
