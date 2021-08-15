@@ -5,6 +5,10 @@ o Change
 # Optimize
 * Fix
 
+------------ v1.2.7 [2021.08.15] ------------
+
+* Fix show/hide CT frames config not working at login
+
 ------------ v1.2.6 [2021.02.16] ------------
 
 o Hide spell missed info for guardians
