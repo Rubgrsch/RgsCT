@@ -4,7 +4,8 @@ local B, L, C = unpack(rct)
 local _G = _G
 local band, C_Timer_After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs = bit.band, C_Timer.After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs
 
--- Stolen from AbuCombattext, converted to hex
+-- Stolen from AbuCombattext, converted to hex.
+-- Thanks to Sticklord!
 local dmgcolor = {
 	[1] = "ffff00",
 	[2] = "ffe57f",
@@ -62,6 +63,7 @@ local function MoverLock(_,button)
 end
 
 local function CreateCTFrame(frameName,name,frameWidth,moverWidth,height)
+	-- Drag and drop mover. Only shown in mover configuring mode.
 	local mover = CreateFrame("Frame", nil, UIParent)
 	mover:Hide()
 	mover:SetSize(moverWidth,height)
@@ -78,6 +80,7 @@ local function CreateCTFrame(frameName,name,frameWidth,moverWidth,height)
 	text:SetPoint("CENTER", mover, "CENTER")
 	text:SetText(name)
 
+	-- Actual CT frame
 	local frame = CreateFrame("ScrollingMessageFrame", frameName, UIParent)
 	frame:SetSpacing(3)
 	frame:SetMaxLines(20)
@@ -85,7 +88,7 @@ local function CreateCTFrame(frameName,name,frameWidth,moverWidth,height)
 	frame:SetTimeVisible(3)
 	frame:SetJustifyH("CENTER")
 	frame:SetSize(frameWidth,height)
-	frame:SetPoint("CENTER", mover)
+	frame:SetPoint("CENTER", mover) -- anchor to mover
 
 	C.mover[frame] = mover
 
@@ -133,10 +136,12 @@ end
 -- Merge --
 local DmgFunc
 local mergeData = {
+	-- [isIn] -> [isHealing]
 	[true] = {[true] = {}, [false] = {}},
 	[false] = {[true] = {}, [false] = {}},
 }
 
+-- Show merged msg every 0.05s
 local function DmgMerge(isIn,isHealing,spellID,amount,school,critical)
 	local tbl = mergeData[isIn][isHealing]
 	if not tbl[spellID] then
@@ -157,6 +162,7 @@ function C:SetMerge()
 end
 
 -- Role check
+-- Show healing in OutFrame for healers, InFrame for tanks/dps
 local role = nil
 local function RoleCheck() role = GetSpecializationRole(GetSpecialization()) end
 B:AddEventScript("PLAYER_LOGIN", RoleCheck)
@@ -198,7 +204,7 @@ CLEUFrame:SetScript("OnEvent", function(self)
 	elseif Event == "SPELL_HEAL" or (db.periodic and Event == "SPELL_PERIODIC_HEAL") then
 		-- block full-overhealing
 		if blacklist[arg1] or arg4 == arg5 then return end
-		-- Show healing in OutFrame for healers, InFrame for tank/dps
+		-- Show healing in OutFrame for healers, InFrame for tanks/dps
 		if fromMine and role == "HEALER" then DmgFunc(false,true,arg1,arg4,arg3,arg7)
 		elseif toMe then DmgFunc(true,true,arg1,arg4,arg3,arg7)
 		elseif fromMine then DmgFunc(false,true,arg1,arg4,arg3,arg7) end
@@ -208,6 +214,7 @@ CLEUFrame:SetScript("OnEvent", function(self)
 		InfoFrame:AddMessage(format(L[Event], arg5))
 	end
 end)
+
 local function VehicleChanged(_, _, unit, _, _, _, guid) if unit == "player" then CLEUFrame.vehicleGUID = guid end end
 B:AddEventScript("UNIT_ENTERED_VEHICLE", VehicleChanged)
 B:AddEventScript("UNIT_EXITING_VEHICLE", VehicleChanged)

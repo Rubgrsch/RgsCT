@@ -6,7 +6,7 @@ local B, L = unpack(rct)
 
 setmetatable(L, {__index=function(_, key) return key end})
 
---Event
+-- Event
 local frame = CreateFrame("Frame")
 frame:SetScript("OnEvent", function(self,event,...)
 	for _, func in ipairs(self[event]) do func(self,event,...) end
@@ -28,6 +28,7 @@ function B:AddInitScript(func)
 end
 
 B:AddEventScript("PLAYER_LOGIN", function()
+	-- Disable WoW internal CT and use ours
 	SetCVar("floatingCombatTextCombatDamage", 0)
 	SetCVar("floatingCombatTextCombatHealing", 0)
 	SetCVar("enableFloatingCombatText", 0)
