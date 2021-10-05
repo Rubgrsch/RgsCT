@@ -15,9 +15,9 @@ Options are available via GUI.
 
 [ChangeLog](https://github.com/Rubgrsch/RgsCT/blob/master/changelog.txt)
 
-This addon will not officially support classic WoW.  
+This addon does not support any versions of classic WoW.  
 
-You can send feedback via Github, Curse or ElvUI discord.  
+You can send feedback via Github  
 
 Thanks
 ------
