@@ -28,11 +28,6 @@ function B:AddInitScript(func)
 end
 
 B:AddEventScript("PLAYER_LOGIN", function()
-	-- Disable WoW internal CT and use ours
-	SetCVar("floatingCombatTextCombatDamage", 0)
-	SetCVar("floatingCombatTextCombatHealing", 0)
-	SetCVar("enableFloatingCombatText", 0)
-
 	for _,v in ipairs(init) do v() end
 	init = nil
 end)
