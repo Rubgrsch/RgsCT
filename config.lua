@@ -37,9 +37,10 @@ B:AddInitScript(function()
 end)
 
 -- GUI Template --
-local configFrame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
-configFrame.name = addonName
-InterfaceOptions_AddCategory(configFrame)
+local configFrame = CreateFrame("Frame")
+local category = Settings.RegisterCanvasLayoutCategory(configFrame, "RgsCT")
+Settings.RegisterAddOnCategory(category)
+
 local idx, first, previous = 1, configFrame, configFrame
 
 local function SetFramePoint(frame, pos)
@@ -232,7 +233,7 @@ B:AddInitScript(function()
 		end)
 	NewButton(L["mover"], L["moverTooltip"], 1,
 		function()
-			InterfaceOptionsFrame:Hide()
+			HideUIPanel(SettingsPanel)
 			HideUIPanel(GameMenuFrame)
 			for _,mover in pairs(C.mover) do mover:Show() end
 			print(L["moverMsg"])
