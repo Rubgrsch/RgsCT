@@ -226,7 +226,7 @@ B:AddInitScript(function()
 			C.db.font = chosen
 			C:SetFont()
 		end,true)
-	NewSlider("fontSize", L["fontSize"], nil, 9, 30, 1, 1,
+	NewSlider("fontSize", L["fontSize"], nil, 9, 40, 1, 1,
 		function(value)
 			C.db.fontSize = value
 			C:SetFont()
