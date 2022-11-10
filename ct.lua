@@ -103,8 +103,6 @@ function C:SetFont()
 	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
 	for frame,mover in pairs(self.mover) do
 		frame:SetFont(font, fontSize, "OUTLINE")
-		mover:ClearAllPoints()
-		mover:SetPoint(unpack(self.db.mover[frame:GetName()]))
 	end
 end
 
@@ -232,10 +230,14 @@ B:AddEventScript("PLAYER_REGEN_DISABLED", PlayerRegenChanged)
 
 B:AddInitScript(function()
 	C:SetFont()
+	for frame,mover in pairs(C.mover) do
+		mover:ClearAllPoints()
+		mover:SetPoint(unpack(C.db.mover[frame:GetName()]))
+	end
+	if C.db["out"] then OutFrame:Show() else OutFrame:Hide() end
+	if C.db["in"] then InFrame:Show() else InFrame:Hide() end
+	-- InfoFrame is always shown
 	C:SetMerge()
 	CLEUFrame.playerGUID = UnitGUID("player")
 	CLEUFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	-- show/hide ct frame
-	if C.db["out"] then OutFrame:Show() else OutFrame:Hide() end
-	if C.db["in"] then InFrame:Show() else InFrame:Hide() end
 end)
