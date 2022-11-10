@@ -5,6 +5,12 @@ o Change
 # Optimize
 * Fix
 
+------------ v1.2.8 [2022.11.10] ------------
+
+o Update for Dragonflight
+o Increase max font size to 40
+- No longer override CT CVar at login
+
 ------------ v1.2.7 [2021.08.15] ------------
 
 * Fix CT frames always show at login
@@ -114,7 +120,7 @@ o Leech is now always filtered
 
 ------------ v0.6.1 [2018.02.28] ------------
 
-o Only show effective healing
+o Hide full-overhealing
 - Remove player died info
 * Fix an error when login
 

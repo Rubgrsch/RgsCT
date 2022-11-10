@@ -1,6 +1,6 @@
-## Interface: 90100
+## Interface: 100000
 ## Title: RgsCT
-## Version: v1.2.7
+## Version: v1.2.8
 ## Author: Rubgrsch
 ## SavedVariables: rgsctDB
 
