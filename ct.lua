@@ -140,6 +140,9 @@ local mergeData = {
 }
 
 -- Show merged msg every 0.05s
+-- Create a func for each spell so we can use C_Timer.After after first hit.
+-- This only lags once every game session, which is acceptable.
+-- mergeData = {[1] = totalAmount, [2] = school, [3] = criticalHits, [4] = hits}
 local function DmgMerge(isIn,isHealing,spellID,amount,school,critical)
 	local tbl = mergeData[isIn][isHealing]
 	if not tbl[spellID] then
