@@ -1,12 +1,14 @@
 # RgsCT
 A tiny combat text addon for World of Warcraft.  
+It currently supports Dragonflight (10.0).  
 
 https://www.curseforge.com/wow/addons/rgsct  
+https://addons.wago.io/addons/rgsct  
 
 This addon provides necessary combat feedback with low usage.  
 Options are available via GUI.  
 
-[ChangeLog](https://github.com/Rubgrsch/RgsCT/blob/master/changelog.txt)
+[ChangeLog](https://github.com/Rubgrsch/RgsCT/blob/master/changelog.txt)  
 
 This addon does not support any versions of classic WoW.  
 
@@ -15,7 +17,7 @@ You can send feedback via Github.
 Features
 --------
 
-It shows following infomation:
+It shows following information:
 - Damage
 - Healing
 - Misses
@@ -25,7 +27,7 @@ It shows following infomation:
 It won't show:
 - Full-overhealing
 - Leech
-- Missing from guadians (like totems)
+- Missing from guardians (like totems)
 
 Thanks
 ------
