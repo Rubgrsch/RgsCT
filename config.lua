@@ -66,7 +66,7 @@ end
 
 local function NewCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
-	local check = CreateFrame("CheckButton", Name, configFrame, "InterfaceOptionsCheckButtonTemplate")
+	local check = CreateFrame("CheckButton", Name, configFrame, "UICheckButtonTemplate")
 	check:SetScript("OnShow", function(self) self:SetChecked(C.db[label]) end)
 	check:SetScript("OnClick", function(self)
 		local checked = self:GetChecked()
@@ -81,8 +81,9 @@ end
 
 local function NewSlider(label, name, desc, min, max, step, pos, set)
 	local Name = addonName.."Config"..label
-	local slider = CreateFrame("Slider",Name,configFrame,"OptionsSliderTemplate")
+	local slider = CreateFrame("Slider",Name,configFrame,"UISliderTemplateWithLabels")
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	slider:SetSize(144, 17)
 	text:SetPoint("BOTTOM",0,-10)
 	slider.tooltipText = name
 	slider.tooltipRequirement = desc
@@ -164,7 +165,7 @@ local function NewDropdown(label, name, pos, tbl, set, isFont)
 		self.chosen = chosen
 		SetHighlight()
 		selectedText:SetText(chosen)
-		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize) end
+		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize,"") end
 	end)
 
 	local function OnClick(self)
@@ -174,7 +175,7 @@ local function NewDropdown(label, name, pos, tbl, set, isFont)
 		SetHighlight()
 		selectedText:SetText(chosen)
 		if set then set(chosen) else C.db[label] = chosen end
-		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize) end
+		if isFont then selectedText:SetFont(LSM:Fetch("font",chosen),fontSize,"") end
 		list:Hide()
 	end
 	local function OnEnter(self) if f.chosen ~= self.value then self:SetBackdropColor(1,1,1,0.8) end end
@@ -185,7 +186,7 @@ local function NewDropdown(label, name, pos, tbl, set, isFont)
 			local value = tbl[i+offset]
 			opt.value = value
 			opt.text:SetText(value)
-			if isFont then opt.text:SetFont(LSM:Fetch("font",value),fontSize) end
+			if isFont then opt.text:SetFont(LSM:Fetch("font",value),fontSize,"") end
 		end
 	end
 	local Len = #tbl
