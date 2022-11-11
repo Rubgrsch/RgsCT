@@ -50,7 +50,7 @@ local function SetFramePoint(frame, pos)
 	else
 		if pos > 0 then
 			if idx <= 3 - pos then -- same line
-				frame:SetPoint("LEFT", previous, "LEFT", 185, 0)
+				frame:SetPoint("LEFT", previous, "LEFT", 200, 0)
 				idx = idx + pos
 			else -- nextline
 				frame:SetPoint("TOPLEFT", first, "TOPLEFT", 0, -40)
@@ -86,8 +86,8 @@ local function NewCheckBox(label, name, desc, pos, set)
 	end)
 	_G[Name.."Text"]:SetText(name)
 	if desc then
-	check.tooltipText = name
-	check.tooltipRequirement = desc
+		check.tooltipText = name
+		check.tooltipRequirement = desc
 		check:SetScript("OnEnter", TT_OnEnter)
 		check:SetScript("OnLeave", TT_OnLeave)
 	end
@@ -237,7 +237,7 @@ end
 -- End of GUI template --
 
 local titleText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormalLarge")
-titleText:SetPoint("TOP", configFrame, "TOPLEFT", 275, -16)
+titleText:SetPoint("TOP", configFrame, "TOPLEFT", 290, -16)
 titleText:SetText(addonName)
 local versionText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormal")
 versionText:SetPoint("TOPRIGHT", configFrame, "TOPRIGHT", -8, -8)
