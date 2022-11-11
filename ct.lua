@@ -59,6 +59,7 @@ local function MoverLock(_,button)
 			m:Hide()
 			C.db.mover[f:GetName()]={"BOTTOMLEFT", m:GetLeft(), m:GetBottom()}
 		end
+		PlaySound(857)
 	end
 end
 

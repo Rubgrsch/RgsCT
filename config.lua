@@ -105,7 +105,10 @@ local function NewButton(name, desc, pos, func)
 	button:SetText(name)
 	button.tooltipText = desc
 	button:SetSize(150, 25)
-	button:SetScript("OnClick", func)
+	button:SetScript("OnClick", function(self)
+		PlaySound(856)
+		func()
+	end)
 	SetFramePoint(button,pos)
 end
 
