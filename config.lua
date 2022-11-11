@@ -64,6 +64,17 @@ local function SetFramePoint(frame, pos)
 	previous = frame
 end
 
+local function TT_OnEnter(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+	GameTooltip_SetTitle(GameTooltip, self.tooltipText)
+	GameTooltip:AddLine(self.tooltipRequirement)
+	GameTooltip:Show()
+end
+
+local function TT_OnLeave()
+	GameTooltip:Hide()
+end
+
 local function NewCheckBox(label, name, desc, pos, set)
 	local Name = addonName.."Config"..label
 	local check = CreateFrame("CheckButton", Name, configFrame, "UICheckButtonTemplate")
@@ -74,8 +85,12 @@ local function NewCheckBox(label, name, desc, pos, set)
 		PlaySound(checked and 856 or 857)
 	end)
 	_G[Name.."Text"]:SetText(name)
+	if desc then
 	check.tooltipText = name
 	check.tooltipRequirement = desc
+		check:SetScript("OnEnter", TT_OnEnter)
+		check:SetScript("OnLeave", TT_OnLeave)
+	end
 	SetFramePoint(check, pos)
 end
 
@@ -85,8 +100,6 @@ local function NewSlider(label, name, desc, min, max, step, pos, set)
 	local text = slider:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 	slider:SetSize(144, 17)
 	text:SetPoint("BOTTOM",0,-10)
-	slider.tooltipText = name
-	slider.tooltipRequirement = desc
 	slider:SetMinMaxValues(min, max)
 	_G[Name.."Low"]:SetText(min)
 	_G[Name.."High"]:SetText(max)
@@ -98,6 +111,12 @@ local function NewSlider(label, name, desc, min, max, step, pos, set)
 		if set then set(value) else C.db[label]=value end
 		text:SetText(value)
 	end)
+	if desc then
+		slider.tooltipText = name
+		slider.tooltipRequirement = desc
+		slider:SetScript("OnEnter", TT_OnEnter)
+		slider:SetScript("OnLeave", TT_OnLeave)
+	end
 	SetFramePoint(slider, pos)
 end
 
