@@ -102,7 +102,7 @@ local InfoFrame = CreateCTFrame("RgsCTInfo",L["Info"],800,400,80)
 
 function C:SetFont()
 	local font, fontSize = LibStub("LibSharedMedia-3.0"):Fetch("font",self.db.font), self.db.fontSize
-	for frame,mover in pairs(self.mover) do
+	for frame in pairs(self.mover) do
 		frame:SetFont(font, fontSize, "OUTLINE")
 	end
 end
