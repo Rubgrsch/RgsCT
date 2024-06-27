@@ -2,7 +2,7 @@ local _, rct = ...
 local B, L, C = unpack(rct)
 
 local _G = _G
-local band, C_Timer_After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs = bit.band, C_Timer.After, CombatLogGetCurrentEventInfo, format, unpack, C_Spell.GetSpellTexture, UnitGUID, pairs
+local band, C_Timer_After, CombatLogGetCurrentEventInfo, format, unpack, GetSpellTexture, UnitGUID, pairs = bit.band, C_Timer.After, CombatLogGetCurrentEventInfo, format, unpack, C_Spell.GetSpellTexture or GetSpellTexture, UnitGUID, pairs
 
 -- Stolen from AbuCombattext, converted to hex.
 -- Thanks to Sticklord!
