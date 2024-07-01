@@ -1,6 +1,6 @@
 # RgsCT
 A tiny combat text addon for World of Warcraft.  
-It currently supports Dragonflight (10.0).  
+It currently supports The War Within (11.0).  
 
 https://www.curseforge.com/wow/addons/rgsct  
 https://addons.wago.io/addons/rgsct  
