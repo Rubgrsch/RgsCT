@@ -1,4 +1,4 @@
-## Interface: 100207, 110000
+## Interface: 110005
 ## Title: RgsCT
 ## Version: v1.3.1
 ## Author: Rubgrsch

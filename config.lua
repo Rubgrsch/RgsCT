@@ -241,7 +241,7 @@ titleText:SetPoint("TOP", configFrame, "TOPLEFT", 290, -16)
 titleText:SetText(addonName)
 local versionText = configFrame:CreateFontString(nil,"ARTWORK","GameFontNormal")
 versionText:SetPoint("TOPRIGHT", configFrame, "TOPRIGHT", -8, -8)
-versionText:SetText((GetAddOnMetadata or C_AddOns.GetAddOnMetadata)(addonName, "Version"))
+versionText:SetText(C_AddOns.GetAddOnMetadata(addonName, "Version"))
 
 B:AddInitScript(function()
 	NewDropdown("font",L["font"],{"TOPLEFT", configFrame, "TOPLEFT", 16, -60},LSM:List("font"),
