@@ -39,6 +39,7 @@ local dmgcolor = {
 	[34] = "bfb2bf",
 	[33] = "bfbf7f",
 	[17] = "bfff7f",
+	[106] = "603866",
 }
 setmetatable(dmgcolor,{__index=function() return "ffffff" end})
 
